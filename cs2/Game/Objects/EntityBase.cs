@@ -40,7 +40,7 @@ namespace cs2.Game.Objects
             return true;
         }
         protected IntPtr EntityList { get; set; }
-        protected IntPtr ControllerBase { get; set; }
+        public IntPtr ControllerBase { get; set; }
 
         //CCSPlayerController
         public IntPtr AddressBase { get; private set; }
@@ -48,6 +48,6 @@ namespace cs2.Game.Objects
         private bool LifeState { get; set; }
         public int Health { get; set; }
         public Team Team { get; private set; }
-        protected Vector3 Origin { get; private set; }
+        public Vector3 Origin { get; private set; }
     }
 }

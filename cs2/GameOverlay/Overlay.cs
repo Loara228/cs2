@@ -50,12 +50,16 @@ namespace cs2.GameOverlay
             }
 
             SpectatorList.Update();
+
+            Scoreboard.Update();
         }
 
         private void Draw(Graphics g)
         {
             WallHack.Draw(g);
             SpectatorList.Draw(g);
+
+            Scoreboard.Draw(g);
         }
 
         private void OnDraw(Graphics g)

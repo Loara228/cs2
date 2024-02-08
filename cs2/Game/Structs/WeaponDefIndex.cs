@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace cs2.Game.Structs
 {
-    public enum WeaponIndex
+    public enum WeaponDefIndex
     {
         Invalid = -1,
         Unknown = 0,

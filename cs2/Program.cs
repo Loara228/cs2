@@ -1,6 +1,11 @@
-﻿using cs2.Game.Objects;
+﻿#define fromDir
+
+using cs2.Game.Features;
+using cs2.Game.Objects;
 using cs2.GameOverlay;
 using cs2.Offsets;
+using System.Data;
+
 
 namespace cs2
 {
@@ -8,32 +13,75 @@ namespace cs2
     {
         static void Main(string[] args)
         {
-            Log("init...");
-            OffsetsLoader.Initialize();
+            if (args.Contains("-fromDir"))
+                OffsetsLoader.type = LoadType.FROM_DIR;
+            else
+                OffsetsLoader.type = LoadType.FROM_GIT;
+
+            if (!OffsetsLoader.Initialize())
+            {
+                Log("offsets init failed", ConsoleColor.Red);
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
             if (!Memory.Initialize())
             {
-                Log("game not found", ConsoleColor.Red);
+                Log("memory init failed", ConsoleColor.Red);
                 Console.ReadKey();
-                return;
+                Environment.Exit(0);
             }
-            LocalPlayer = new LocalPlayer();
+            ReadKeyThr();
             new Overlay();
+        }
+
+        private static void ReadKeyThr()
+        {
+            new Thread(() =>
+            {
+                while(true)
+                {
+                    ConsoleKeyInfo key = Console.ReadKey();
+                    if (key.Key == ConsoleKey.D1)
+                    {
+                        int i = 0;
+                        foreach(var entity in Entities)
+                        {
+                            Console.WriteLine($"{i} | {entity.Nickname}. wins: {Memory.Read<int>(entity.ControllerBase + OffsetsLoader.CCSPlayerController.m_iCompetitiveWins)}. Predicted_Win: {Memory.Read<int>(entity.ControllerBase + OffsetsLoader.CCSPlayerController.m_iCompetitiveRankingPredicted_Win)}");
+                        }
+                    }
+                    else
+                    {
+                        Log("Unknown command");
+                    }
+                }
+            }).Start();
         }
 
         public static void Log(string text, ConsoleColor color = ConsoleColor.Gray)
         {
             Console.ForegroundColor = color;
             Console.WriteLine(text);
+            Console.ForegroundColor = ConsoleColor.Gray;
         }
 
         public static LocalPlayer LocalPlayer
         {
             get; private set;
-        } = null!;
+        } = new LocalPlayer();
 
         public static List<Entity> Entities
         {
             get; set;
         } = new List<Entity>();
+
+        public static int ScreenW
+        {
+            get; set;
+        } = 1920;
+
+        public static int ScreenH
+        {
+            get; set;
+        } = 1080;
     }
 }

@@ -29,14 +29,13 @@ namespace cs2.Game.Features
 
                 Rectangle rect = new Rectangle();
                 Vector3 v3headPos = entity.HeadPos;
-                if (v3headPos == Vector3.Zero || entity.Origin == Vector3.Zero)
-                    continue;
+
                 Vector3 v2HeadPos = Program.LocalPlayer.MatrixViewProjectionViewport.Transform(v3headPos);
                 Vector3 v3Pos = entity.Origin;
                 Vector3 v2Pos = Program.LocalPlayer.MatrixViewProjectionViewport.Transform(v3Pos);
 
                 if (!v2HeadPos.IsValidScreen() || !v2Pos.IsValidScreen())
-                    return;
+                    continue;
 
                 float boxHeight = v2Pos.Y - v2HeadPos.Y;
                 float boxWidth = (boxHeight / 2) * 1.25f;
@@ -49,12 +48,17 @@ namespace cs2.Game.Features
 
                 if (Health)
                 {
-                    g.FillRectangle(Brushes.HalfBlack, rect.Left, rect.Bottom + 4, rect.Right, rect.Bottom + 9);
+                    Rectangle hpBarRect = new Rectangle(rect.Left, rect.Bottom + 4, rect.Right, rect.Bottom + 9);
+                    g.FillRectangle(Brushes.HalfBlack, hpBarRect);
                     g.DrawVerticalProgressBar(Brushes.Black, Brushes.White, rect.Left, rect.Bottom + 4, rect.Right, rect.Bottom + 9, 1, entity.Health);
                 }
 
                 if (Weapon)
-                    g.DrawText(Fonts.Consolas, Brushes.White, rect.Left, rect.Bottom + 10, entity.WeaponIndex.ToString());
+                {
+                    string weaponName = entity.WeaponIndex.ToString();
+                    g.DrawText(Fonts.Consolas, 11, Brushes.Black, rect.Left + 1, rect.Bottom + 11, weaponName);
+                    g.DrawText(Fonts.Consolas, 11, Brushes.White, rect.Left, rect.Bottom + 10, weaponName);
+                }
             }
         }
 

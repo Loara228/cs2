@@ -33,6 +33,14 @@ namespace cs2.Game.Features
             }
         }
 
+        public static void Draw(Graphics g)
+        {
+            if (!Enabled)
+                return;
+
+            g.DrawTextWithBackground(Fonts.Consolas, Brushes.White, Brushes.HalfBlack, new Point(10, 10), $"{string.Join("\n", _spectators)}");
+        }
+
         private static IntPtr ReadAddressBase(IntPtr playerPawn)
         {
             IntPtr entityList = Memory.Read<IntPtr>(Memory.ClientPtr + Client.dwEntityList);
@@ -40,14 +48,6 @@ namespace cs2.Game.Features
             return listEntrySecond == IntPtr.Zero
                 ? IntPtr.Zero
                 : Memory.Read<IntPtr>(listEntrySecond + 120 * (playerPawn & 0x1FF));
-        }
-
-        public static void Draw(Graphics g)
-        {
-            if (!Enabled)
-                return;
-
-            g.DrawTextWithBackground(Fonts.Consolas, Brushes.White, Brushes.HalfBlack, new Point(10, 10), $"{string.Join("\n", _spectators)}");
         }
 
         public static bool Enabled

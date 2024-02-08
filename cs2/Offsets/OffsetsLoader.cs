@@ -10,7 +10,7 @@ namespace cs2.Offsets
 {
     internal static class OffsetsLoader
     {
-        public static void Initialize()
+        public static bool Initialize()
         {
             C_BaseEntity = new C_BaseEntity();
             Client = new Interfaces.Client();
@@ -19,8 +19,10 @@ namespace cs2.Offsets
             CPlayer_ObserverServices = new CPlayer_ObserverServices();
             C_CSPlayerPawnBase = new C_CSPlayerPawnBase();
             CGameSceneNode = new CGameSceneNode();
+            CCSPlayerController = new CCSPlayerController();
+            CCSPlayerController_InGameMoneyServices = new CCSPlayerController_InGameMoneyServices();
 
-            if (!InitFromDir)
+            if (type == LoadType.FROM_GIT)
             {
                 using (WebClient wc = new WebClient())
                 {
@@ -30,24 +32,60 @@ namespace cs2.Offsets
                     string clientDllData = wc.DownloadString(clientDllUrl);
                     string offsetsData = wc.DownloadString(offseltsUrl);
 
-                    Load(C_BaseEntity, clientDllUrl);
-                    Load(Client, offseltsUrl);
-                    Load(CBasePlayerController, clientDllUrl);
-                    Load(C_BasePlayerPawn, clientDllUrl);
-                    Load(CPlayer_ObserverServices, clientDllUrl);
-                    Load(C_CSPlayerPawnBase, clientDllUrl);
-                    Load(CGameSceneNode, clientDllUrl);
+                    ParseData(clientDllData, offsetsData);
+
+                    return true;
                 }
             }
-            else
+            else if (type == LoadType.FROM_DIR)
             {
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "generated");
+                string clientDllPath = Path.Combine(path, "client.dll.cs");
+                string offsetsPath = Path.Combine(path, "offsets.cs");
+
+                if (!File.Exists(clientDllPath))
+                {
+                    Program.Log($"\"{clientDllPath}\" not found", ConsoleColor.Red);
+                    return false;
+                }
+                if (!File.Exists(offsetsPath))
+                {
+                    Program.Log($"\"{offsetsPath}\" not found", ConsoleColor.Red);
+                    return false;
+                }
+
+                string clientDllData = "";
+                string offsetsData = "";
+
+                using (StreamReader reader = new StreamReader(clientDllPath))
+                    clientDllData = reader.ReadToEnd();
+
+                using (StreamReader reader = new StreamReader(offsetsPath))
+                    offsetsData = reader.ReadToEnd();
+
+                ParseData(clientDllData, offsetsData);
+                return true;
             }
+            return false;
+        }
+
+        private static void ParseData(string clientDllData, string offsetsData)
+        {
+            Load(C_BaseEntity, clientDllData);
+            Load(Client, offsetsData);
+            Load(CBasePlayerController, clientDllData);
+            Load(C_BasePlayerPawn, clientDllData);
+            Load(CPlayer_ObserverServices, clientDllData);
+            Load(C_CSPlayerPawnBase, clientDllData);
+            Load(CGameSceneNode, clientDllData);
+            Load(CCSPlayerController, clientDllData);
+            Load(CCSPlayerController_InGameMoneyServices, clientDllData);
         }
 
         private static void Load(InterfaceBase @interface, string fileData)
         {
             @interface.ParseInterface(fileData);
-            Program.Log($"{@interface.Name} loaded", ConsoleColor.Green);
+            Program.Log($"{@interface.Name} loaded", ConsoleColor.DarkGray);
         }
 
         public static C_BaseEntity C_BaseEntity
@@ -55,7 +93,7 @@ namespace cs2.Offsets
             get; private set;
         } = null!;
 
-        public static Interfaces.Client Client
+        public static Client Client
         {
             get; private set;
         } = null!;
@@ -85,7 +123,16 @@ namespace cs2.Offsets
             get; private set;
         } = null!;
 
-        public static bool InitFromDir = false;
+        public static CCSPlayerController CCSPlayerController
+        {
+            get; private set;
+        } = null!;
 
+        public static CCSPlayerController_InGameMoneyServices CCSPlayerController_InGameMoneyServices
+        {
+            get; private set;
+        } = null!;
+
+        public static LoadType type = LoadType.FROM_GIT;
     }
 }

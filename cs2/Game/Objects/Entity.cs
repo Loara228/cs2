@@ -47,7 +47,7 @@ namespace cs2.Game.Objects
             Nickname = Memory.ReadString(ControllerBase + CBasePlayerController.m_iszPlayerName);
             Origin = Memory.Read<Vector3>(AddressBase + C_BasePlayerPawn.m_vOldOrigin);
             WeaponPtr = Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_pClippingWeapon); // C_CSWeaponBase
-            WeaponIndex = (WeaponIndex)Memory.Read<short>(WeaponPtr + 0x1098 + 0x50 + 0x1BA); // C_EconEntity.m_AttributeManager + m_Item + m_iItemDefinitionIndex 0x1158
+            WeaponIndex = (WeaponDefIndex)Memory.Read<short>(WeaponPtr + 0x1098 + 0x50 + 0x1BA); // C_EconEntity.m_AttributeManager + m_Item + m_iItemDefinitionIndex 0x1158
 
             return true;
         }
@@ -86,7 +86,7 @@ namespace cs2.Game.Objects
             get; set;
         }
 
-        public WeaponIndex WeaponIndex
+        public WeaponDefIndex WeaponIndex
         {
             get; set;
         }

@@ -29,7 +29,7 @@ namespace cs2.Offsets.Interfaces
                 int valueStartIndex = data.IndexOf(fieldName, startIndex);
                 if (valueStartIndex == -1)
                 {
-                    Program.Log($"{Name}.{field.Name} not found.", ConsoleColor.Red);
+                    Program.Log($"{Name}.{field.Name} not found.", ConsoleColor.Yellow);
                     continue;
                 }
                 valueStartIndex += fieldName.Length + 3; // " = "
