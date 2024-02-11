@@ -11,10 +11,11 @@ namespace cs2.GameOverlay
     {
         public static void Initialize(Graphics g)
         {
-            _bones = g.CreateSolidBrush(255, 255, 100, 200);
-            _boxes = g.CreateSolidBrush(106, 244, 255, 50);
 
             _halfBlack = g.CreateSolidBrush(0, 0, 0, 127);
+
+            _boxes = g.CreateSolidBrush(106, 244, 255, 100);
+            _bones = g.CreateSolidBrush(255, 255, 0, 150);
 
             _black = g.CreateSolidBrush(0, 0, 0, 255);
             _white = g.CreateSolidBrush(255, 255, 255, 255);
@@ -29,6 +30,13 @@ namespace cs2.GameOverlay
 
             _scoreboardElementT = g.CreateSolidBrush(231, 208, 138, 255);
             _scoreboardElementCT = g.CreateSolidBrush(182, 212, 238, 255);
+
+            _uiBackgroundColor = g.CreateSolidBrush(31, 31, 31, 255);
+            _uiHeaderColor = g.CreateSolidBrush(46, 46, 46, 255);
+            _uiTextColor = _white;
+
+            _fovColor = g.CreateSolidBrush(255, 255, 255, 40);
+
         }
 
         public static void Dispose()
@@ -106,6 +114,28 @@ namespace cs2.GameOverlay
             get => _teamGreen;
         }
 
+        public static SolidBrush UIBackgroundColor
+        {
+            get => _uiBackgroundColor;
+        }
+
+        public static SolidBrush UIHeaderColor
+        {
+            get => _uiHeaderColor;
+        }
+
+        public static SolidBrush UITextColor
+        {
+            get => _uiTextColor;
+        }
+
+        public static SolidBrush FOVColor
+        {
+            get => _fovColor;
+        }
+
+        private static SolidBrush _fovColor = null!;
+
         private static SolidBrush _scoreboardElementT = null!;
         private static SolidBrush _scoreboardElementCT = null!;
 
@@ -119,10 +149,22 @@ namespace cs2.GameOverlay
         private static SolidBrush _red = null!;
         private static SolidBrush _green = null!;
 
+        #region TeamColor
+
         private static SolidBrush _teamYellow = null!;
         private static SolidBrush _teamBlue = null!;
         private static SolidBrush _teamOrange = null!;
         private static SolidBrush _teamPurple = null!;
         private static SolidBrush _teamGreen = null!;
+
+        #endregion
+
+        #region UI Brushes
+
+        private static SolidBrush _uiBackgroundColor = null!;
+        private static SolidBrush _uiHeaderColor = null!;
+        private static SolidBrush _uiTextColor = null!;
+
+        #endregion
     }
 }

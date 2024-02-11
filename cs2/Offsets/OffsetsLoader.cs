@@ -12,8 +12,10 @@ namespace cs2.Offsets
     {
         public static bool Initialize()
         {
+            Program.Log($"Load.{type}");
+
             C_BaseEntity = new C_BaseEntity();
-            Client = new Interfaces.Client();
+            ClientOffsets = new Interfaces.ClientOffsets();
             CBasePlayerController = new CBasePlayerController();
             C_BasePlayerPawn = new C_BasePlayerPawn();
             CPlayer_ObserverServices = new CPlayer_ObserverServices();
@@ -21,6 +23,9 @@ namespace cs2.Offsets
             CGameSceneNode = new CGameSceneNode();
             CCSPlayerController = new CCSPlayerController();
             CCSPlayerController_InGameMoneyServices = new CCSPlayerController_InGameMoneyServices();
+            C_BaseModelEntity = new C_BaseModelEntity();
+            C_CSPlayerPawn = new C_CSPlayerPawn();
+            EntitySpottedState_t = new EntitySpottedState_t();
 
             if (type == LoadType.FROM_GIT)
             {
@@ -71,8 +76,9 @@ namespace cs2.Offsets
 
         private static void ParseData(string clientDllData, string offsetsData)
         {
+            Load(ClientOffsets, offsetsData);
+
             Load(C_BaseEntity, clientDllData);
-            Load(Client, offsetsData);
             Load(CBasePlayerController, clientDllData);
             Load(C_BasePlayerPawn, clientDllData);
             Load(CPlayer_ObserverServices, clientDllData);
@@ -80,6 +86,9 @@ namespace cs2.Offsets
             Load(CGameSceneNode, clientDllData);
             Load(CCSPlayerController, clientDllData);
             Load(CCSPlayerController_InGameMoneyServices, clientDllData);
+            Load(C_BaseModelEntity, clientDllData);
+            Load(C_CSPlayerPawn, clientDllData);
+            Load(EntitySpottedState_t, clientDllData);
         }
 
         private static void Load(InterfaceBase @interface, string fileData)
@@ -93,7 +102,7 @@ namespace cs2.Offsets
             get; private set;
         } = null!;
 
-        public static Client Client
+        public static ClientOffsets ClientOffsets
         {
             get; private set;
         } = null!;
@@ -129,6 +138,21 @@ namespace cs2.Offsets
         } = null!;
 
         public static CCSPlayerController_InGameMoneyServices CCSPlayerController_InGameMoneyServices
+        {
+            get; private set;
+        } = null!;
+
+        public static C_BaseModelEntity C_BaseModelEntity
+        {
+            get; private set;
+        } = null!;
+
+        public static C_CSPlayerPawn C_CSPlayerPawn
+        {
+            get; private set;
+        } = null!;
+
+        public static EntitySpottedState_t EntitySpottedState_t
         {
             get; private set;
         } = null!;

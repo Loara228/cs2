@@ -27,7 +27,7 @@ namespace cs2.Game.Objects
 
         public virtual bool Update()
         {
-            EntityList = Memory.Read<IntPtr>(Memory.ClientPtr + Client.dwEntityList);
+            EntityList = Memory.Read<IntPtr>(Memory.ClientPtr + ClientOffsets.dwEntityList);
             ControllerBase = ReadControllerBase();
             AddressBase = ReadAddressBase();
             if (ControllerBase == IntPtr.Zero || AddressBase == IntPtr.Zero) return false;
@@ -39,11 +39,14 @@ namespace cs2.Game.Objects
 
             return true;
         }
+
+        /// <summary>
+        /// PlayerPawn
+        /// </summary>
+        public IntPtr AddressBase { get; private set; }
+
         protected IntPtr EntityList { get; set; }
         public IntPtr ControllerBase { get; set; }
-
-        //CCSPlayerController
-        public IntPtr AddressBase { get; private set; }
 
         private bool LifeState { get; set; }
         public int Health { get; set; }

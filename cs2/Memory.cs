@@ -49,6 +49,14 @@ namespace cs2
             ReadProcessMemory(hProcess, lpBaseAddress, buffer, maxLength, out _);
             return buffer;
         }
+
+        public static byte[] ReadBytes(IntPtr lpBaseAddress, int maxLength)
+        {
+            var buffer = new byte[maxLength];
+            ReadProcessMemory(_proc.Handle, lpBaseAddress, buffer, maxLength, out _);
+            return buffer;
+        }
+
         public static string ReadString(IntPtr lpBaseAddress, int maxLength = 256)
         {
             var buffer = ReadBytes(_proc.Handle, lpBaseAddress, maxLength);

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace cs2.Offsets.Interfaces
 {
@@ -20,13 +20,13 @@ namespace cs2.Offsets.Interfaces
 
         public void ParseInterface(string data)
         {
-            int startIndex = data.IndexOf(Name);
+            int startIndex = data.IndexOf("class " + Name);
             if (startIndex == -1)
                 throw new FormatException($"{Name} not found.");
             foreach(FieldInfo field in this.GetType().GetFields())
             {
                 string fieldName = field.Name;
-                int valueStartIndex = data.IndexOf(fieldName, startIndex);
+                int valueStartIndex = data.IndexOf(fieldName + " = ", startIndex);
                 if (valueStartIndex == -1)
                 {
                     Program.Log($"{Name}.{field.Name} not found.", ConsoleColor.Yellow);

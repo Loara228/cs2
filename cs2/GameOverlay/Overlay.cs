@@ -1,5 +1,9 @@
 ﻿using cs2.Game.Features;
 using cs2.Game.Objects;
+using cs2.GameOverlay.UI.Controls;
+using cs2.GameOverlay.UI.Forms;
+using cs2.Offsets;
+using cs2.Offsets.Interfaces;
 using GameOverlay.Drawing;
 using GameOverlay.Windows;
 using System;
@@ -40,6 +44,8 @@ namespace cs2.GameOverlay
 
         private void Update()
         {
+            Input.Update();
+
             Program.Entities.Clear();
             Program.LocalPlayer.Update();
             for (int i = 0; i < 12; i++)
@@ -50,14 +56,27 @@ namespace cs2.GameOverlay
             }
 
             SpectatorList.Update();
-
             Scoreboard.Update();
+
+            keyHome.Update();
+
+            if (keyHome.state == Input.KeyState.PRESSED)
+                _enableUI = !_enableUI;
+
+            if (_enableUI)
+            {
+                foreach(var form in Forms)
+                {
+                    form.Update();
+                }
+            }
         }
 
         private void Draw(Graphics g)
         {
             WallHack.Draw(g);
             SpectatorList.Draw(g);
+            AimAssist.Draw(g);
 
             Scoreboard.Draw(g);
         }
@@ -66,7 +85,17 @@ namespace cs2.GameOverlay
         {
             Update();
             g.ClearScene();
+
             Draw(g);
+
+            if (_enableUI)
+            {
+                g.FillRectangle(Brushes.HalfBlack, new Rectangle(0, 0, g.Width, g.Height));
+                foreach (var form in Forms)
+                {
+                    form.Draw(g);
+                }
+            }
         }
 
         #region Events
@@ -75,6 +104,7 @@ namespace cs2.GameOverlay
         {
             Brushes.Initialize(e.Graphics);
             Fonts.Initialize(e.Graphics);
+            InitializeForms();
         }
 
         private void Window_DestroyGraphics(object? sender, DestroyGraphicsEventArgs e)
@@ -84,6 +114,15 @@ namespace cs2.GameOverlay
         }
 
         private void Window_DrawGraphics(object? sender, DrawGraphicsEventArgs e) => OnDraw(e.Graphics);
+
+        #endregion
+
+        #region Forms
+
+        private void InitializeForms()
+        {
+            Forms = [new FormSpectators()];
+        }
 
         #endregion
 
@@ -117,6 +156,13 @@ namespace cs2.GameOverlay
             get; private set;
         }
 
+        public List<UIForm> Forms
+        {
+            get; private set;
+        }
+
+        private Input.Key keyHome = new Input.Key(36);
+        private bool _enableUI;
         private bool _disposed;
     }
 }

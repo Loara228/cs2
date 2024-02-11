@@ -15,9 +15,12 @@ namespace cs2.Game.Objects
 {
     internal class Entity : EntityBase
     {
-        public Entity(int index)
+        public Entity(int index, bool bonesOnly = false)
         {
             this.Index = index;
+            this.BonesOnly = bonesOnly;
+
+            this.Weapon = new Weapon();
         }
 
         protected override IntPtr ReadControllerBase()
@@ -30,11 +33,11 @@ namespace cs2.Game.Objects
 
         protected override IntPtr ReadAddressBase()
         {
-            var playerPawn = Memory.Read<int>(ControllerBase + CBasePlayerController.m_hPawn);
-            var listEntrySecond = Memory.Read<IntPtr>(EntityList + 0x8 * ((playerPawn & 0x7FFF) >> 9) + 16);
+            PlayerPawn = Memory.Read<int>(ControllerBase + CBasePlayerController.m_hPawn);
+            var listEntrySecond = Memory.Read<IntPtr>(EntityList + 0x8 * ((PlayerPawn & 0x7FFF) >> 9) + 16);
             return listEntrySecond == IntPtr.Zero
                 ? IntPtr.Zero
-                : Memory.Read<IntPtr>(listEntrySecond + 120 * (playerPawn & 0x1FF));
+                : Memory.Read<IntPtr>(listEntrySecond + 120 * (PlayerPawn & 0x1FF));
         }
 
         public override bool Update()
@@ -42,12 +45,23 @@ namespace cs2.Game.Objects
             if (!base.Update()) return false;
             if (Program.LocalPlayer.AddressBase == AddressBase)
                 return true;
+
             UpdateBones();
+
             Dormant = Memory.Read<bool>(AddressBase + CGameSceneNode.m_bDormant);
+
+            if (BonesOnly)
+                return true;
+
             Nickname = Memory.ReadString(ControllerBase + CBasePlayerController.m_iszPlayerName);
-            Origin = Memory.Read<Vector3>(AddressBase + C_BasePlayerPawn.m_vOldOrigin);
-            WeaponPtr = Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_pClippingWeapon); // C_CSWeaponBase
-            WeaponIndex = (WeaponDefIndex)Memory.Read<short>(WeaponPtr + 0x1098 + 0x50 + 0x1BA); // C_EconEntity.m_AttributeManager + m_Item + m_iItemDefinitionIndex 0x1158
+            WeaponPtr = Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_pClippingWeapon);
+            Weapon.Update(WeaponPtr);
+
+            IntPtr entitySpottedStatePtr = Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_entitySpottedState);
+            SpottedState = Memory.Read<EntitySpottedState_t>(entitySpottedStatePtr);
+
+            IsScoped = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsScoped) && Weapon.IsSniperRifle;
+            IsDefusing = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsDefusing);
 
             return true;
         }
@@ -70,10 +84,17 @@ namespace cs2.Game.Objects
                 bone = Bones[i];
                 boneAddress = boneArray + bone.id * 32;
                 bonePos = Memory.Read<Vector3>(boneAddress);
-                Bones[i] = new(bone.name, bonePos, bone.id);
+                Bones[i] = new(bone.bone, bonePos, bone.id);
                 if (i == 0)
                     HeadPos = bonePos;
             }
+        }
+
+        public bool CheckVisable()
+        {
+            //int v1 = (int)SpottedState.GetSpottedByMask() & (int)(1 << (int)Program.LocalPlayer.AddressBase);
+            //int v2 = (int)Program.LocalPlayer.SpottedState.GetSpottedByMask() & (int)(1 << PlayerPawn);
+            return SpottedState.m_bSpotted;
         }
 
         public override bool IsAlive()
@@ -81,53 +102,40 @@ namespace cs2.Game.Objects
             return base.IsAlive() && !Dormant;
         }
 
-        private IntPtr WeaponPtr
+        public Weapon Weapon { get; private set; }
+        private IntPtr WeaponPtr { get; set; }
+        public Vector3 HeadPos { get; private set; } = Vector3.Zero;
+        public List<(Bone bone, Vector3 pos, int id)> Bones
         {
             get; set;
-        }
-
-        public WeaponDefIndex WeaponIndex
-        {
-            get; set;
-        }
-
-        public Vector3 HeadPos
-        {
-            get; private set;
-        } = Vector3.Zero;
-
-        public Vector3 Origin
-        {
-            get; private set;
-        } = Vector3.Zero;
-
-        public List<(string name, Vector3 pos, int id)> Bones
-        {
-            get; set;
-        } = new List<(string name, Vector3 pos, int id)>()
+        } = new List<(Bone bone, Vector3 pos, int id)>()
             {
-                ("head", Vector3.Zero, 6),           // 0
-                ("neck_0", Vector3.Zero, 5),         // 1
-                ("spine_1", Vector3.Zero, 4),        // 2
-                ("spine_2", Vector3.Zero, 2),        // 3
-                ("pelvis", Vector3.Zero, 0),         // 4
-                ("arm_upper_L", Vector3.Zero, 8),    // 5
-                ("arm_lower_L", Vector3.Zero, 9),    // 6
-                ("hand_L", Vector3.Zero, 10),        // 7
-                ("arm_upper_R", Vector3.Zero, 13),   // 8
-                ("arm_lower_R", Vector3.Zero, 14),   // 9
-                ("hand_R", Vector3.Zero, 15),        // 10
-                ("leg_upper_L", Vector3.Zero, 22),   // 11
-                ("leg_lower_L", Vector3.Zero, 23),   // 12
-                ("ankle_L", Vector3.Zero, 24),       // 13
-                ("leg_upper_R", Vector3.Zero, 25),   // 14
-                ("leg_lower_R", Vector3.Zero, 26),   // 15
-                ("ankle_R", Vector3.Zero, 27)        // 16
+                (Bone.head, Vector3.Zero, 6),           // 0
+                (Bone.neck_0, Vector3.Zero, 5),         // 1
+                (Bone.spine_1, Vector3.Zero, 4),        // 2
+                (Bone.spine_2, Vector3.Zero, 2),        // 3
+                (Bone.pelvis, Vector3.Zero, 0),         // 4
+                (Bone.arm_upper_L, Vector3.Zero, 8),    // 5
+                (Bone.arm_lower_L, Vector3.Zero, 9),    // 6
+                (Bone.hand_L, Vector3.Zero, 10),        // 7
+                (Bone.arm_upper_R, Vector3.Zero, 13),   // 8
+                (Bone.arm_lower_R, Vector3.Zero, 14),   // 9
+                (Bone.hand_R, Vector3.Zero, 15),        // 10
+                (Bone.leg_upper_L, Vector3.Zero, 22),   // 11
+                (Bone.leg_lower_L, Vector3.Zero, 23),   // 12
+                (Bone.ankle_L, Vector3.Zero, 24),       // 13
+                (Bone.leg_upper_R, Vector3.Zero, 25),   // 14
+                (Bone.leg_lower_R, Vector3.Zero, 26),   // 15
+                (Bone.ankle_R, Vector3.Zero, 27)        // 16
             };
-
+        public EntitySpottedState_t SpottedState { get; private set; }
+        public int PlayerPawn {  get; set; }
         public int Index { get; private set; }
         public string Nickname { get; private set; }
-
+        public bool IsSpotted { get; private set; }
+        public bool IsDefusing { get; private set; }
+        public bool IsScoped { get; private set; }
         private bool Dormant { get; set; }
+        private bool BonesOnly { get; set; }
     }
 }

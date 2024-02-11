@@ -15,29 +15,29 @@ namespace cs2.Game.Features
     {
         public static void Update()
         {
-            if (Keyboard.KeyDown(9)) // Tab vk
+            if (Input.IsKeyDown(9)) // Tab vk
             {
                 if (TabKeyState == 0)
-                    TabKeyState = Keyboard.KeyState.PRESSED;
-                else if (TabKeyState == Keyboard.KeyState.PRESSED)
-                    TabKeyState = Keyboard.KeyState.DOWN;
+                    TabKeyState = Input.KeyState.PRESSED;
+                else if (TabKeyState == Input.KeyState.PRESSED)
+                    TabKeyState = Input.KeyState.DOWN;
             }
             else
             {
-                if (TabKeyState == Keyboard.KeyState.DOWN)
-                    TabKeyState = Keyboard.KeyState.RELEASE;
-                else if (TabKeyState == Keyboard.KeyState.RELEASE)
-                    TabKeyState = Keyboard.KeyState.NONE;
+                if (TabKeyState == Input.KeyState.DOWN)
+                    TabKeyState = Input.KeyState.RELEASE;
+                else if (TabKeyState == Input.KeyState.RELEASE)
+                    TabKeyState = Input.KeyState.NONE;
             }
         }
 
         public static void Draw(Graphics g)
         {
-            if (TabKeyState != Keyboard.KeyState.DOWN)
+            if (TabKeyState != Input.KeyState.DOWN)
                 return;
 
             int ScoreboardHeight = SCOREBOARD_ELEMENT_OFFSET + ((t.Count + ct.Count) * (SCOREBOARD_ELEMENT_HEIGHT + SCOREBOARD_ELEMENT_OFFSET)) + SCOREBOARD_ELEMENT_OFFSET_TEAMS;
-            Rectangle scoreboardBounds = new Rectangle(Program.ScreenW - SCOREBOARD_WIDTH, 0, Program.ScreenW, ScoreboardHeight);
+            Rectangle scoreboardBounds = new Rectangle(g.Width - SCOREBOARD_WIDTH, 0, g.Width, ScoreboardHeight);
             g.FillRectangle(Brushes.HalfBlack, scoreboardBounds);
 
             float last = 0;
@@ -60,14 +60,14 @@ namespace cs2.Game.Features
             }
             else
             {
-                foreach (PlayerData pData in t)
+                foreach (PlayerData pData in ct)
                 {
                     Rectangle rectEl = GetScoreboardElementRect(scoreboardBounds, last);
                     DrawScoreboardElement(g, rectEl, pData);
                     last = rectEl.Bottom;
                 }
                 last += SCOREBOARD_ELEMENT_OFFSET_TEAMS;
-                foreach (PlayerData pData in ct)
+                foreach (PlayerData pData in t)
                 {
                     Rectangle rectEl = GetScoreboardElementRect(scoreboardBounds, last);
                     DrawScoreboardElement(g, rectEl, pData);
@@ -120,20 +120,20 @@ namespace cs2.Game.Features
             }
         }
 
-        private static Keyboard.KeyState TabKeyState
+        private static Input.KeyState TabKeyState
         {
             get => _tabKeyState;
             set
             {
                 _tabKeyState = value;
-                if (value == Keyboard.KeyState.PRESSED)
+                if (value == Input.KeyState.PRESSED)
                 {
                     UpdateList();
                 }
             }
         }
 
-        private static Keyboard.KeyState _tabKeyState;
+        private static Input.KeyState _tabKeyState;
 
         private static List<PlayerData> t = new List<PlayerData>(), 
                                         ct = new List<PlayerData>();
@@ -143,15 +143,15 @@ namespace cs2.Game.Features
             public PlayerData(Entity entity)
             {
                 this.entity = entity;
-                int currentMMR = Memory.Read<int>(entity.ControllerBase + OffsetsLoader.CCSPlayerController.m_iCompetitiveRanking);
-                int win = Memory.Read<int>(entity.ControllerBase + OffsetsLoader.CCSPlayerController.m_iCompetitiveRankingPredicted_Win);
-                int loss = Memory.Read<int>(entity.ControllerBase + OffsetsLoader.CCSPlayerController.m_iCompetitiveRankingPredicted_Loss);
-                int tie = Memory.Read<int>(entity.ControllerBase + OffsetsLoader.CCSPlayerController.m_iCompetitiveRankingPredicted_Tie);
+                int currentMMR = Memory.Read<int>(entity.ControllerBase + CCSPlayerController.m_iCompetitiveRanking);
+                int win = Memory.Read<int>(entity.ControllerBase + CCSPlayerController.m_iCompetitiveRankingPredicted_Win);
+                int loss = Memory.Read<int>(entity.ControllerBase + CCSPlayerController.m_iCompetitiveRankingPredicted_Loss);
+                int tie = Memory.Read<int>(entity.ControllerBase + CCSPlayerController.m_iCompetitiveRankingPredicted_Tie);
 
-                wins = Memory.Read<int>(entity.ControllerBase + OffsetsLoader.CCSPlayerController.m_iCompetitiveWins);
-                color = Memory.Read<int>(entity.ControllerBase + OffsetsLoader.CCSPlayerController.m_iCompTeammateColor);
+                wins = Memory.Read<int>(entity.ControllerBase + CCSPlayerController.m_iCompetitiveWins);
+                color = Memory.Read<int>(entity.ControllerBase + CCSPlayerController.m_iCompTeammateColor);
 
-                IntPtr m_pInGameMoneyServices = Memory.Read<IntPtr>(entity.ControllerBase + OffsetsLoader.CCSPlayerController.m_pInGameMoneyServices);
+                IntPtr m_pInGameMoneyServices = Memory.Read<IntPtr>(entity.ControllerBase + CCSPlayerController.m_pInGameMoneyServices);
 
                 m_iAccount = Memory.Read<int>(m_pInGameMoneyServices + CCSPlayerController_InGameMoneyServices.m_iAccount);
                 m_iCashSpentThisRound = Memory.Read<int>(m_pInGameMoneyServices + CCSPlayerController_InGameMoneyServices.m_iCashSpentThisRound);

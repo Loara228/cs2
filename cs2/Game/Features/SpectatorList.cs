@@ -43,7 +43,7 @@ namespace cs2.Game.Features
 
         private static IntPtr ReadAddressBase(IntPtr playerPawn)
         {
-            IntPtr entityList = Memory.Read<IntPtr>(Memory.ClientPtr + Client.dwEntityList);
+            IntPtr entityList = Memory.Read<IntPtr>(Memory.ClientPtr + ClientOffsets.dwEntityList);
             var listEntrySecond = Memory.Read<IntPtr>(entityList + 0x8 * ((playerPawn & 0x7FFF) >> 9) + 16);
             return listEntrySecond == IntPtr.Zero
                 ? IntPtr.Zero
