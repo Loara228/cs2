@@ -9,14 +9,32 @@ namespace cs2.GameOverlay.UI.Controls
 {
     internal class UILabel : UIControl
     {
-        public UILabel(Font font, IBrush textColor, uint fontSize = 12, string text = "") : base(new Rectangle(0, 0, 0, 0), Brushes.Black)
+        public UILabel(string text = "") : base(0, 0)
         {
-            DrawBackground = false;
+            Font = Fonts.Consolas;
+            TextColor = Brushes.White;
+            Text = text;
 
+            Rectangle r = initGraphics!.GetTextRect(Font, Text, X, Y);
+            Width = (int)r.Width;
+            Height = (int)r.Height;
+            BrushBackground = Brushes.Black;
+
+            Margin = new Margin(5, 5, 0);
+        }
+
+        public UILabel(Font font, IBrush textColor, string text = "") : base(0, 0)
+        {
             Font = font;
-            FontSize = fontSize;
             TextColor = textColor;
             Text = text;
+
+            Rectangle r = initGraphics!.GetTextRect(Font, Text, X, Y);
+            Width = (int)r.Width;
+            Height = (int)r.Height;
+            BrushBackground = Brushes.Black;
+
+            Margin = new Margin(5, 5, 0);
         }
 
         public override void Update()
@@ -27,19 +45,16 @@ namespace cs2.GameOverlay.UI.Controls
         public override void Draw(Graphics g)
         {
             base.Draw(g);
-
-            g.DrawText(Font, FontSize, TextColor, X, Y, Text);
+            Rectangle r = g.GetTextRect(Font, Text, X, Y);
+            Width = (int)r.Width;
+            Height = (int)r.Height;
+            g.DrawText(Font, TextColor, X, Y, Text);
         }
 
         public string Text
         {
             get; set;
         } = "";
-
-        public uint FontSize
-        {
-            get; private set;
-        }
 
         public IBrush TextColor
         {

@@ -9,7 +9,15 @@ namespace cs2.GameOverlay.UI
 {
     internal abstract class UIContainer : UIControl
     {
-        public UIContainer(Rectangle rect, IBrush backgroundBrush) : base(rect, backgroundBrush)
+        //public UIContainer(Rectangle rect, IBrush backgroundBrush) : base(rect, backgroundBrush)
+        //{
+        //    Controls = new List<UIControl>();
+        //}
+        public UIContainer(int x, int y) : base(x, y)
+        {
+            Controls = new List<UIControl>();
+        }
+        public UIContainer(int x, int y, IBrush backgroundBrush) : base(x, y, backgroundBrush)
         {
             Controls = new List<UIControl>();
         }
@@ -26,12 +34,13 @@ namespace cs2.GameOverlay.UI
             }
             else
                 lastControl = Controls[^1];
-            control.X = this.X + control.Offset;
+            control.X = this.X + control.Margin.Left;
             if (first)
-                control.Y = lastControl.Y + control.Offset;
+                control.Y = lastControl.Y + control.Margin.Top;
             else
-                control.Y = (int)lastControl.Rect.Bottom + lastControl.Offset + control.Offset;
+                control.Y = (int)lastControl.Rect.Bottom + lastControl.Margin.Bottom + control.Margin.Top;
             Controls.Add(control);
+            UpdateControlsPos();
         }
 
         public override void Update()
@@ -53,11 +62,11 @@ namespace cs2.GameOverlay.UI
                 }
                 else
                     lastControl = Controls[i - 1];
-                control.X = this.X + control.Offset;
+                control.X = this.X + control.Margin.Left;
                 if (i == 0)
-                    control.Y = lastControl.Y + control.Offset;
+                    control.Y = lastControl.Y + control.Margin.Top;
                 else
-                    control.Y = (int)lastControl.Rect.Bottom + lastControl.Offset + control.Offset;
+                    control.Y = (int)lastControl.Rect.Bottom + lastControl.Margin.Bottom + control.Margin.Top;
             }
         }
 

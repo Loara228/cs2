@@ -9,17 +9,19 @@ namespace cs2.GameOverlay.UI.Controls
 {
     internal class UIForm : UIContainer
     {
-        public UIForm(Rectangle rect = new Rectangle(), string label = "form") : base(rect, Brushes.UIBackgroundColor)
+        public UIForm(int x, int y, string label = "form") : base(x, y, Brushes.UIBackgroundColor)
         {
-            Offset = 0;
+            BrushBorder = Brushes.UIBorderColor;
+            Margin = new Margin(0);
 
-            _header = new UIPanel(new Rectangle(rect.Left, rect.Top, 0, 0), Brushes.UIHeaderColor);
-            _header.Width = (int)(rect.Right - rect.Left);
+            _header = new UIPanel((int)Rect.Left, (int)Rect.Top, Brushes.UIHeaderColor);
+            _header.Width = (int)(Rect.Right - Rect.Left);
             _header.Height = HEADER_SIZE;
-            _header.Offset = 0;
+            _header.Margin = new Margin(1);
 
-            UILabel uiLabel = new UILabel(Fonts.Consolas, Brushes.UITextColor, 14, label);
-            _header.Add(uiLabel);
+            _title = new UILabel(Fonts.Consolas, Brushes.UITextColor, label);
+            _title.Height = HEADER_SIZE;
+            _header.Add(_title);
 
             this.Add(_header);
         }
@@ -30,7 +32,7 @@ namespace cs2.GameOverlay.UI.Controls
             set
             {
                 base.Width = value;
-                _header.Width = value;
+                _header.Width = base.Width - _header.Margin.Left * 2;
             }
         }
 
@@ -45,50 +47,104 @@ namespace cs2.GameOverlay.UI.Controls
 
         public override void Update()
         {
+            if (Rect.IsMouseOn() && Input.MouseLeft.state == Input.KeyState.PRESSED)
+                UpdateLayer();
+
             if (_dragging)
             {
                 Point currentPos = Input.CursorPos;
 
                 Point offset = new Point(currentPos.X - _lastMousePos.X, currentPos.Y - _lastMousePos.Y);
-
+                onMove?.Invoke((int)offset.X, (int)offset.Y);
                 Position = new Point(X + offset.X, Y + offset.Y);
 
                 _lastMousePos = currentPos;
-                _header.UpdateControlsPos();
                 UpdateControlsPos();
+                _header.UpdateControlsPos();
             }
-            if (_header.Rect.IsMouseOn())
+            if (Focused && _header.Rect.IsMouseOn())
             {
                 if (Input.MouseLeft.state == Input.KeyState.PRESSED)
                 {
                     _dragging = true;
                     _lastMousePos = Input.CursorPos;
                 }
-                else if (Input.MouseLeft.state == Input.KeyState.NONE)
-                {
-                    _dragging = false;
-                }
             }
-            base.Update();
+            if (_dragging && Input.MouseLeft.state == Input.KeyState.NONE)
+            {
+                _dragging = false;
+            }
+
+            if (Focused)
+                base.Update();
         }
 
         public override void Draw(Graphics g)
         {
-            base.Draw(g);
+            BrushBorder = Focused ? Brushes.UIActiveColor : Brushes.UIBorderColor;
+            if (Overlay.drawUI && GameForm)
+            {
+                BrushBackground = Brushes.UIBackgroundColor;
+                _header.BrushBackground = Brushes.UIHeaderColor;
+            }
+            else if (!Overlay.drawUI && GameForm)
+            {
+                BrushBorder = Brushes.UIBorderColor2;
+                BrushBackground = Brushes.UIBackgroundColor2;
+                _header.BrushBackground = Brushes.UIHeaderColor2;
+            }
+            if (Overlay.drawUI || GameForm)
+                base.Draw(g);
         }
 
-        protected bool Focused
+        private bool UpdateLayer()
+        {
+            if (!FocusedFrame)
+            {
+                BrushBorder = Brushes.UIActiveColor;
+                FocusedForm = this;
+                _layerIndex++;
+                Layer = _layerIndex;
+                FocusedFrame = true;
+
+                return true;
+            }
+            return false;
+        }
+
+        public static UIForm? FocusedForm
+        {
+            get; set;
+        } = null!;
+
+        internal static bool FocusedFrame
         {
             get; set;
         }
 
+        public bool Focused
+        {
+            get => Overlay.drawUI && FocusedForm is not null && FocusedForm == this;
+        }
+
+        public uint Layer
+        {
+            get; private set;
+        } = 0;
+
+        public bool GameForm
+        {
+            get; protected set;
+        }
+
+        public Action<int, int> onMove;
+
+        private static uint _layerIndex;
         private bool _dragging;
         private Point _lastMousePos;
-
         private UIPanel _header;
+        private UILabel _title;
 
-
-
-        public const int HEADER_SIZE = 30;
+        public const int HEADER_SIZE = 25;
     }
 }

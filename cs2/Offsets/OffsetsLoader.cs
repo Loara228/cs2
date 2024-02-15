@@ -26,6 +26,8 @@ namespace cs2.Offsets
             C_BaseModelEntity = new C_BaseModelEntity();
             C_CSPlayerPawn = new C_CSPlayerPawn();
             EntitySpottedState_t = new EntitySpottedState_t();
+            C_CSWeaponBase = new C_CSWeaponBase();
+            C_BasePlayerWeapon = new C_BasePlayerWeapon();
 
             if (type == LoadType.FROM_GIT)
             {
@@ -89,6 +91,8 @@ namespace cs2.Offsets
             Load(C_BaseModelEntity, clientDllData);
             Load(C_CSPlayerPawn, clientDllData);
             Load(EntitySpottedState_t, clientDllData);
+            Load(C_CSWeaponBase, clientDllData);
+            Load(C_BasePlayerWeapon, clientDllData);
         }
 
         private static void Load(InterfaceBase @interface, string fileData)
@@ -153,6 +157,16 @@ namespace cs2.Offsets
         } = null!;
 
         public static EntitySpottedState_t EntitySpottedState_t
+        {
+            get; private set;
+        } = null!;
+
+        public static C_CSWeaponBase C_CSWeaponBase
+        {
+            get; private set;
+        } = null!;
+
+        public static C_BasePlayerWeapon C_BasePlayerWeapon
         {
             get; private set;
         } = null!;

@@ -27,16 +27,21 @@ namespace cs2.Game.Features
             var entity = Memory.Read<IntPtr>(entityEntry + 120 * (entityId & 0x1FF));
             Team entityTeam = (Team)Memory.Read<int>(entity + C_BaseEntity.m_iTeamNum);
 
-            if (Program.LocalPlayer.Team != entityTeam && (entityTeam == Team.CounterTerrorist || entityTeam == Team.Terrorist))
+            if (LocalPlayer.Current.Team != entityTeam && (entityTeam == Team.CounterTerrorist || entityTeam == Team.Terrorist))
             {
-                Input.MouseClick();
-                AimAssist.Waiting = true;
-                Thread.Sleep(300);
-                AimAssist.Waiting = false;
-                AimAssist._targetBone = Bone.UNKNOWN;
-                AimAssist._targetPos = System.Numerics.Vector3.Zero;
-                AimAssist._targetPtr = IntPtr.Zero;
+                Shot();
             }
+        }
+
+        public static void Shot()
+        {
+            Input.MouseClick();
+            AimAssist.Waiting = true;
+            Thread.Sleep(100);
+            AimAssist.Waiting = false;
+            AimAssist._targetBone = Bone.UNKNOWN;
+            AimAssist._targetPos = System.Numerics.Vector3.Zero;
+            AimAssist._targetPtr = IntPtr.Zero;
         }
     }
 }

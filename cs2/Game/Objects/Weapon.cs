@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static cs2.Offsets.OffsetsLoader;
 
 namespace cs2.Game.Objects
 {
@@ -20,15 +21,9 @@ namespace cs2.Game.Objects
             WeaponPtr = ptr;
             WeaponIndex = (WeaponDefIndex)Memory.Read<short>(WeaponPtr + 0x1098 + 0x50 + 0x1BA); // C_EconEntity.m_AttributeManager + m_Item + m_iItemDefinitionIndex 0x1158
 
+            Ammo1 = Memory.Read<int>(WeaponPtr + C_BasePlayerWeapon.m_iClip1);
+            Ammo2 = Memory.Read<int>(WeaponPtr + C_BasePlayerWeapon.m_iClip1 + sizeof(int) * 2);
         }
-
-		public bool IsSniperRifle
-		{
-			get => WeaponIndex == WeaponDefIndex.Awp ||
-                WeaponIndex == WeaponDefIndex.Ssg08 ||
-                WeaponIndex ==  WeaponDefIndex.Scar20 ||
-                WeaponIndex == WeaponDefIndex.G3Sg1;
-		}
 
         public char ToIcon()
         {
@@ -93,8 +88,19 @@ namespace cs2.Game.Objects
             return '\uE02a';
         }
 
+        public bool IsSniperRifle
+        {
+            get => WeaponIndex == WeaponDefIndex.Awp ||
+                WeaponIndex == WeaponDefIndex.Ssg08 ||
+                WeaponIndex == WeaponDefIndex.Scar20 ||
+                WeaponIndex == WeaponDefIndex.G3Sg1;
+        }
+
         public WeaponDefIndex WeaponIndex { get; set; }
 
         private IntPtr WeaponPtr { get; set; }
+
+        public int Ammo1 { get; set; }
+        public int Ammo2 { get; set; }
     }
 }

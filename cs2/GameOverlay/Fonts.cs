@@ -11,8 +11,8 @@ namespace cs2.GameOverlay
     {
         public static void Initialize(Graphics g)
         {
-            _consolas = g.CreateFont("Consolas", 11);
-            _weapons = g.CreateFont("csgo_icons", 16);
+            _consolas = g.CreateFont("Consolas", 14);
+            _weapons = g.CreateFont("csgo_icons", 12);
             //obs_icons.ttf
             _fontFactory = new SharpDX.DirectWrite.Factory();
         }

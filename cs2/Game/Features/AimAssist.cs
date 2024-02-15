@@ -38,26 +38,27 @@ namespace cs2.Game.Features
 
         private static void Update()
         {
-            if (!EnableAim)
+            vkBind.Update();
+
+            if (!Configuration.Current.EnableAimAssist)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(1);
                 return;
             }
 
-            vkBind.Update();
-
-            if (EnableAim)
+            if (Configuration.Current.EnableAimAssist)
                 UpdateAim();
         }
 
         public static void Draw(Graphics g)
         {
-            if (!EnableAim)
+            if (!Configuration.Current.EnableAimAssist)
+                return;
+            if (Waiting)
                 return;
 
             _screenCenter = new Vector2(g.Width / 2 - 0.5f, g.Height / 2 - 0.5f);
-            if (!Waiting)
-                g.DrawCircle(Brushes.FOVColor, _screenCenter.X, _screenCenter.Y, FOVRadius, 1);
+            g.DrawCircle(Brushes.FOVColor, _screenCenter.X, _screenCenter.Y, FOVRadius, 1);
             if (_targetPos2D != Vector2.Zero)
             {
                 if (_targetPos == Vector3.Zero)
@@ -79,13 +80,14 @@ namespace cs2.Game.Features
 
         private static void UpdateTB()
         {
-            if (!EnableTB)
+            if (!Configuration.Current.EnableTriggerbot)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
                 return;
             }
             Triggerbot.Update(vkBind.state);
         }
+
         private static void Aim(Entity entity)
         {
             if (_targetPtr == IntPtr.Zero)
@@ -93,8 +95,21 @@ namespace cs2.Game.Features
 
             Vector3 angle = CalcAngle(EyePosition, _targetPos, ViewAngles);
 
-            int xMove = -(int)(angle.Y * 9);
-            int yMove = (int)(angle.X * 11);
+            double absX = Math.Abs(angle.X);
+            double absY = Math.Abs(angle.Y);
+            if (absX > 50 || absY > 50)
+                return;
+
+            if (absX < 0.3f && absY < 0.3f)
+            {
+                int xMove2 = -(int)(angle.Y * Configuration.Current.AimAssistMult);
+                int yMove2 = (int)(angle.X * Configuration.Current.AimAssistMult);
+                Input.MouseMove(xMove2, yMove2);
+                Triggerbot.Shot();
+            }
+
+            int xMove = -(int)(angle.Y * Configuration.Current.AimAssistMult);
+            int yMove = (int)(angle.X * Configuration.Current.AimAssistMult);
 
             Input.MouseMove(xMove, yMove);
         }
@@ -109,13 +124,13 @@ namespace cs2.Game.Features
                 Entity entity = new(i, true);
                 entity.Update();
 
-                if (!entity.IsAlive() || entity.Team == Program.LocalPlayer.Team)
+                if (!entity.IsAlive() || entity.Team == LocalPlayer.Current.Team)
                     continue;
 
                 _entities.Add(entity);
             }
 
-            if (vkBind.state == Input.KeyState.PRESSED)
+            if (vkBind.state == Input.KeyState.DOWN && _targetPtr == 0)
                 FindTarget();
             else if (vkBind.state == Input.KeyState.NONE)
                 FindTarget(true);
@@ -124,7 +139,7 @@ namespace cs2.Game.Features
                 _targetPos = Vector3.Zero;
                 _targetPtr = IntPtr.Zero;
                 _targetBone = Bone.UNKNOWN;
-                //Input.MouseClick();
+                Triggerbot.Shot();
             }
             else if (vkBind.state == Input.KeyState.DOWN)
             {
@@ -193,7 +208,8 @@ namespace cs2.Game.Features
             if (targetPtr == IntPtr.Zero)
                 return minDistance;
 
-            _targetPos2D = targetPos2d;
+            if (displayPoint)
+                _targetPos2D = targetPos2d;
             if (!displayPoint)
             {
                 _targetPtr = targetPtr;
@@ -262,23 +278,18 @@ namespace cs2.Game.Features
 
         public static Input.Key vkBind = new Input.Key(6);
 
-        public static bool EnableTB
-        {
-            get; set;
-        } = true;
-
-        public static bool EnableAim
-        {
-            get; set;
-        } = true;
-
         public static bool Waiting
         {
             get; set;
         } = false;
 
-        public static float FOVRadius { get; set; } = 100;
-
+        public static float FOVRadius
+        {
+            get
+            {
+                return LocalPlayer.Current.IsScoped ? 450 : Configuration.Current.FOV_Radius;
+            }
+        }
 
         private static List<Entity> _entities = new List<Entity>();
 

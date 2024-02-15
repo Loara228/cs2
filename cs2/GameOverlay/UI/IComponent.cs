@@ -12,6 +12,5 @@ namespace cs2.GameOverlay.UI
         public abstract void Update();
 
         public abstract void Draw(Graphics g);
-
     }
 }

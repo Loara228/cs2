@@ -1,6 +1,10 @@
 ﻿using cs2.Game.Objects;
+using cs2.Game.Structs;
 using cs2.GameOverlay;
+using cs2.Offsets;
+using cs2.Offsets.Interfaces;
 using GameOverlay.Drawing;
+using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,117 +16,158 @@ namespace cs2.Game.Features
 {
     internal static class WallHack
     {
-        public static void Draw(Graphics g)
+        public static void Draw(Graphics g, bool preview = false, Entity? pEntity = null)
         {
-            DrawBones(g);
-            DrawRect(g);
+            DrawBones(g, preview, pEntity);
+            if (preview)
+                DrawEnt(g, pEntity!, true);
+            else
+                DrawEntities(g);
         }
 
-        private static void DrawRect(Graphics g)
+        private static void DrawEntities(Graphics g)
         {
             foreach (var entity in Program.Entities)
             {
-                if (entity == null)
-                    continue;
-                if (!entity.IsAlive() || entity.Team == Program.LocalPlayer.Team)
-                    continue;
-
-                Rectangle rect = new Rectangle();
-                Vector3 v3headPos = entity.HeadPos;
-
-                Vector3 v2HeadPos = Program.LocalPlayer.MatrixViewProjectionViewport.Transform(v3headPos);
-                Vector3 v3Pos = entity.Origin;
-                Vector3 v2Pos = Program.LocalPlayer.MatrixViewProjectionViewport.Transform(v3Pos);
-
-                if (!v2HeadPos.IsValidScreen() || !v2Pos.IsValidScreen())
-                    continue;
-
-                float boxHeight = v2Pos.Y - v2HeadPos.Y;
-                float boxWidth = (boxHeight / 2) * 1.25f;
-
-
-                rect = new Rectangle(v2Pos.X - (boxWidth / 2), v2HeadPos.Y - (boxHeight / 8) + 1, v2Pos.X - (boxWidth / 2) + boxWidth, v2HeadPos.Y + boxHeight);
-
-                if (Boxes)
-                    g.DrawRectangleEdges(Brushes.Boxes, rect, 1);
-
-                if (Health)
-                {
-                    Rectangle hpBarRect = new Rectangle(rect.Left, rect.Bottom + 4, rect.Right, rect.Bottom + 9);
-                    g.FillRectangle(Brushes.HalfBlack, hpBarRect);
-                    g.DrawVerticalProgressBar(Brushes.Black, Brushes.White, rect.Left, rect.Bottom + 4, rect.Right, rect.Bottom + 9, 1, entity.Health);
-                }
-
-                if (Weapon)
-                {
-                    string weaponIcon = entity.Weapon.ToIcon().ToString();
-                    Rectangle weaponIconRect = g.GetTextRect(Fonts.WeaponIcons, 14, weaponIcon);
-                    g.DrawText(Fonts.WeaponIcons, 12, Brushes.Black, rect.Left + 2 + rect.Width / 2 - weaponIconRect.Width / 2, rect.Bottom + weaponIconRect.Height / 2 + 2, weaponIcon);
-                    g.DrawText(Fonts.WeaponIcons, 12, Brushes.White, rect.Left + rect.Width / 2 - weaponIconRect.Width / 2, rect.Bottom + weaponIconRect.Height / 2, weaponIcon);
-                }
-
-                string alerts = "";
-
-                if (Scoped && entity.IsScoped)
-                {
-                    alerts += "scoped\n";
-                }
-                if (Defusing && entity.IsDefusing)
-                {
-                    alerts += "defusing\n";
-                }
-
-                Rectangle alertsRect = g.GetTextRect(Fonts.Consolas, 14, alerts);
-                g.DrawText(Fonts.Consolas, 14, Brushes.Red, rect.Left + rect.Width / 2 - alertsRect.Width / 2, rect.Top - alertsRect.Height, alerts);
+                DrawEnt(g, entity);
             }
         }
 
-        private static void DrawBones(Graphics g)
+        private static void DrawEnt(Graphics g, Entity entity, bool preview = false)
         {
-            if (!Bones)
+            if (entity == null)
                 return;
+            if (!preview)
+                if (!entity.IsAlive() || entity.Team == LocalPlayer.Current.Team)
+                    return;
+
+            Rectangle rect = new Rectangle();
+            Vector3 v3headPos = entity.HeadPos;
+
+            Vector3 v2HeadPos = preview ? entity.HeadPos : LocalPlayer.Current.MatrixViewProjectionViewport.Transform(v3headPos);
+            Vector3 v3Pos = preview ? entity.Origin : entity.Origin;
+            Vector3 v2Pos = preview ? v3Pos : LocalPlayer.Current.MatrixViewProjectionViewport.Transform(v3Pos);
+
+            if (!preview)
+                if (!v2HeadPos.IsValidScreen() || !v2Pos.IsValidScreen())
+                    return;
+
+            float boxHeight = v2Pos.Y - v2HeadPos.Y;
+            float boxWidth = (boxHeight / 2) * 1.25f;
+
+
+            rect = new Rectangle(v2Pos.X - (boxWidth / 2), v2HeadPos.Y - (boxHeight / 8) + 1, v2Pos.X - (boxWidth / 2) + boxWidth, v2HeadPos.Y + boxHeight);
+
+            if (Configuration.Current.ESP_Boxes)
+                g.DrawRectangleEdges(Brushes.Red, rect, 1);
+
+            if (Configuration.Current.ESP_Health)
+            {
+                DrawHealth(g, entity, rect);
+            }
+
+            string weaponIcon = "";
+            if (Configuration.Current.ESP_Weapon)
+            {
+                weaponIcon = entity.Weapon.ToIcon().ToString();
+            }
+            if (Configuration.Current.ESP_Ammo)
+            {
+                if (Configuration.Current.ESP_Weapon)
+                    weaponIcon += " ";
+
+                weaponIcon += $"{entity.Weapon.Ammo1}/{entity.Weapon.Ammo2}";
+            }
+            if (weaponIcon != "")
+            {
+                Rectangle weaponIconRect = g.GetTextRect(Fonts.WeaponIcons, weaponIcon);
+                g.DrawText(Fonts.WeaponIcons, Brushes.Black, rect.Left + 1 + rect.Width / 2 - weaponIconRect.Width / 2, rect.Bottom + weaponIconRect.Height / 2 + 6, weaponIcon);
+                g.DrawText(Fonts.WeaponIcons, Brushes.White, rect.Left + rect.Width / 2 - weaponIconRect.Width / 2, rect.Bottom + weaponIconRect.Height / 2 + 5, weaponIcon);
+            }
+
+            if (Configuration.Current.ESP_Alerts)
+            {
+                string alerts = "";
+                if (Scoped && entity.IsScoped)
+                    alerts += "scoped\n";
+                if (Defusing && entity.IsDefusing)
+                    alerts += "defusing\n";
+
+                Rectangle alertsRect = g.GetTextRect(Fonts.Consolas, alerts);
+                g.DrawText(Fonts.Consolas, Brushes.Red, rect.Left + rect.Width / 2 - alertsRect.Width / 2, rect.Top - alertsRect.Height, alerts);
+            }
+            DrawFlashState(g, entity, rect, preview);
+        }
+
+        private static void DrawHealth(Graphics g, Entity entity, Rectangle rect)
+        {
+            const int h = 4, offset = 5;
+            g.FillRectangle(Brushes.HalfBlack, rect.Left, rect.Bottom + h + offset, rect.Right, rect.Bottom + offset);
+            g.DrawVerticalProgressBar(Brushes.Black, Brushes.White, rect.Left, rect.Bottom + h + offset, rect.Right, rect.Bottom + offset, 1, entity.Health);
+
+        }
+
+        private static void DrawFlashState(Graphics g, Entity entity, Rectangle rect, bool preview = false)
+        {
+            if (entity.FlashDuration == 0 || !Configuration.Current.ESP_Flash)
+                return;
+            float perc = preview ? 75 : entity.FlashTimer / 5f * 100f;
+            const int h = 4, offset = 5;
+            g.FillRectangle(Brushes.HalfBlack, rect.Left, rect.Top - h - offset, rect.Right, rect.Top - offset);
+            g.DrawVerticalProgressBar(Brushes.Black, Brushes.FlashbangColor, rect.Left, rect.Top - h - offset, rect.Right, rect.Top - offset, 1, perc);
+        }
+
+        private static void DrawBones(Graphics g, bool preview = false, Entity? pEntity = null)
+        {
+            if (!Configuration.Current.ESP_Skeleton)
+                return;
+            SolidBrush brush = Brushes.Bones;
+            if (preview)
+            {
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[0].pos, pEntity.Bones[1].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[1].pos, pEntity.Bones[2].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[2].pos, pEntity.Bones[3].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[3].pos, pEntity.Bones[4].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[2].pos, pEntity.Bones[5].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[5].pos, pEntity.Bones[6].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[6].pos, pEntity.Bones[7].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[2].pos, pEntity.Bones[8].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[8].pos, pEntity.Bones[9].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[9].pos, pEntity.Bones[10].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[4].pos, pEntity.Bones[11].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[11].pos, pEntity.Bones[12].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[12].pos, pEntity.Bones[13].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[4].pos, pEntity.Bones[14].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[14].pos, pEntity.Bones[15].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, pEntity.Bones[15].pos, pEntity.Bones[16].pos);
+                return;
+            }
             foreach (var entity in Program.Entities)
             {
-                SolidBrush brush = Brushes.Bones;
 
                 if (entity == null)
                     continue;
-                if (!entity.IsAlive() || entity.Team == Program.LocalPlayer.Team)
+                if (!entity.IsAlive() || entity.Team == LocalPlayer.Current.Team)
                     continue;
 
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[0].pos, entity.Bones[1].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[1].pos, entity.Bones[2].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[2].pos, entity.Bones[3].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[3].pos, entity.Bones[4].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[2].pos, entity.Bones[5].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[5].pos, entity.Bones[6].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[6].pos, entity.Bones[7].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[2].pos, entity.Bones[8].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[8].pos, entity.Bones[9].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[9].pos, entity.Bones[10].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[4].pos, entity.Bones[11].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[11].pos, entity.Bones[12].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[12].pos, entity.Bones[13].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[4].pos, entity.Bones[14].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[14].pos, entity.Bones[15].pos);
-                g.DrawLineWorld(brush, 0.8f, entity.Bones[15].pos, entity.Bones[16].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[0].pos, entity.Bones[1].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[1].pos, entity.Bones[2].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[2].pos, entity.Bones[3].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[3].pos, entity.Bones[4].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[2].pos, entity.Bones[5].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[5].pos, entity.Bones[6].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[6].pos, entity.Bones[7].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[2].pos, entity.Bones[8].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[8].pos, entity.Bones[9].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[9].pos, entity.Bones[10].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[4].pos, entity.Bones[11].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[11].pos, entity.Bones[12].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[12].pos, entity.Bones[13].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[4].pos, entity.Bones[14].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[14].pos, entity.Bones[15].pos);
+                g.DrawLineWorld(brush, 0.8f, preview, entity.Bones[15].pos, entity.Bones[16].pos);
             }
         }
-
-        public static bool Bones
-        {
-            get; set;
-        } = true;
-
-        public static bool Boxes
-        {
-            get; set;
-        } = false;
-
-        public static bool Health
-        {
-            get; set;
-        } = true;
 
         public static bool Scoped
         {
@@ -130,11 +175,6 @@ namespace cs2.Game.Features
         } = true;
 
         public static bool Defusing
-        {
-            get; set;
-        } = true;
-
-        public static bool Weapon
         {
             get; set;
         } = true;

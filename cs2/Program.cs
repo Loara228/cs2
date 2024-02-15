@@ -1,21 +1,28 @@
-﻿#define fromDir
-
-using cs2.Game.Features;
+﻿using cs2.Game.Features;
 using cs2.Game.Objects;
 using cs2.GameOverlay;
 using cs2.Offsets;
+using cs2.PInvoke;
+using System.Runtime.InteropServices;
 
-//todo: overlay_ui, tb, radar
-//wh: FLASHES, RELOADING, SCOPED, AMMO, NICKNAMES
-//wh: aimdir on key?
+//todo:
+//wh: FLASH, RELOADING, AMMO, NICKNAMES
+//wh: aimdir on key (line steps)?
 //world esp: nades, weapons
 //sound esp
+//config and offsets UI
 //dmg
-//bhop
 //hit sound
+//
+
+//wh toggle
+//bhop
+//conf form
+//controls: rowContainer, tip
 
 namespace cs2
 {
+
     internal class Program
     {
         static void Main(string[] args)
@@ -26,6 +33,7 @@ namespace cs2
                 OffsetsLoader.type = LoadType.FROM_GIT;
 
             Input.Initialize();
+            LocalPlayer.Initialize();
             if (!OffsetsLoader.Initialize())
             {
                 Log("offsets init failed", ConsoleColor.Red);
@@ -49,15 +57,9 @@ namespace cs2
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
-        public static LocalPlayer LocalPlayer
-        {
-            get; private set;
-        } = new LocalPlayer();
-
         public static List<Entity> Entities
         {
             get; set;
         } = new List<Entity>();
-
     }
 }

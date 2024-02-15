@@ -5,23 +5,12 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static cs2.PInvoke.User32;
 
 namespace cs2
 {
     internal static class Input
     {
-        [DllImport("User32.dll")]
-        private static extern short GetAsyncKeyState(int vKey);
-
-        [DllImport("user32.dll")]
-        internal static extern uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray), In] INPUT[] pInputs, int cbSize);
-
-        [DllImport("user32.dll")]
-        public static extern bool GetCursorPos(out POINT lpPoint);
-
-
-
-
         public static void Initialize()
         {
             MouseLeft = new Key(1);
@@ -61,6 +50,20 @@ namespace cs2
             SendInput(2 * (uint)count, inputs.ToArray(), INPUT.Size);
         }
 
+        public static void ReleaseKey(ScanCodeShort buttonScanCodeShort)
+        {
+            if (buttonScanCodeShort == ScanCodeShort.ERROR) return;
+            List<INPUT> inputs = new List<INPUT>();
+            INPUT input = new INPUT();
+
+            input.type = 1;
+            input.U.ki.wScan = buttonScanCodeShort;
+            input.U.ki.dwFlags = KEYEVENTF.KEYUP;
+            inputs.Add(input);
+
+            SendInput(1, inputs.ToArray(), INPUT.Size);
+        }
+
         public static void MouseClick()
         {
             List<INPUT> inputs = new List<INPUT>();
@@ -71,6 +74,21 @@ namespace cs2
             inputs.Add(input);
             input.type = 0;
             input.U.mi.dwFlags = MOUSEEVENTF.LEFTUP;
+            inputs.Add(input);
+
+            SendInput(2, inputs.ToArray(), INPUT.Size);
+        }
+
+        public static void MouseMiddle()
+        {
+            List<INPUT> inputs = new List<INPUT>();
+            INPUT input = new INPUT();
+
+            input.type = 0;
+            input.U.mi.dwFlags = MOUSEEVENTF.MIDDLEDOWN;
+            inputs.Add(input);
+            input.type = 0;
+            input.U.mi.dwFlags = MOUSEEVENTF.MIDDLEUP;
             inputs.Add(input);
 
             SendInput(2, inputs.ToArray(), INPUT.Size);
@@ -601,6 +619,8 @@ namespace cs2
                         state = Input.KeyState.RELEASE;
                     else if (state == Input.KeyState.RELEASE)
                         state = Input.KeyState.NONE;
+                    else if (state == KeyState.PRESSED)
+                        state = Input.KeyState.RELEASE;
                 }
             }
 

@@ -9,7 +9,12 @@ namespace cs2.GameOverlay.UI.Controls
 {
     internal class UIPanel : UIContainer
     {
-        public UIPanel(Rectangle rect, IBrush backgroundBrush) : base(rect, backgroundBrush)
+        public UIPanel(int x, int y) : base(x, y)
+        {
+
+        }
+
+        public UIPanel(int x, int y, IBrush backgroundBrush) : base(x, y, backgroundBrush)
         {
 
         }

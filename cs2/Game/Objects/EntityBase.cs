@@ -22,8 +22,8 @@ namespace cs2.Game.Objects
                    Team is not Team.UNKNOWN;
         }
 
-        protected abstract IntPtr ReadControllerBase();
-        protected abstract IntPtr ReadAddressBase();
+        public abstract IntPtr ReadControllerBase();
+        public abstract IntPtr ReadAddressBase();
 
         public virtual bool Update()
         {
@@ -43,7 +43,7 @@ namespace cs2.Game.Objects
         /// <summary>
         /// PlayerPawn
         /// </summary>
-        public IntPtr AddressBase { get; private set; }
+        public IntPtr AddressBase { get; set; }
 
         protected IntPtr EntityList { get; set; }
         public IntPtr ControllerBase { get; set; }
@@ -51,6 +51,6 @@ namespace cs2.Game.Objects
         private bool LifeState { get; set; }
         public int Health { get; set; }
         public Team Team { get; private set; }
-        public Vector3 Origin { get; private set; }
+        public Vector3 Origin { get; set; }
     }
 }

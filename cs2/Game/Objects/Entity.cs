@@ -1,9 +1,12 @@
 ﻿using cs2.Game.Features;
 using cs2.Game.Structs;
+using cs2.GameOverlay;
 using cs2.Offsets;
+using GameOverlay.Drawing;
 using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -15,15 +18,21 @@ namespace cs2.Game.Objects
 {
     internal class Entity : EntityBase
     {
+        public Entity()
+        {
+            this.Weapon = new Weapon();
+        }
+
         public Entity(int index, bool bonesOnly = false)
         {
             this.Index = index;
             this.BonesOnly = bonesOnly;
 
+            this.TeamColor = Brushes.Red;
             this.Weapon = new Weapon();
         }
 
-        protected override IntPtr ReadControllerBase()
+        public override IntPtr ReadControllerBase()
         {
             var listEntryFirst = Memory.Read<IntPtr>(EntityList + ((8 * (Index & 0x7FFF)) >> 9) + 16);
             return listEntryFirst == IntPtr.Zero
@@ -31,7 +40,7 @@ namespace cs2.Game.Objects
                 : Memory.Read<IntPtr>(listEntryFirst + 120 * (Index & 0x1FF));
         }
 
-        protected override IntPtr ReadAddressBase()
+        public override IntPtr ReadAddressBase()
         {
             PlayerPawn = Memory.Read<int>(ControllerBase + CBasePlayerController.m_hPawn);
             var listEntrySecond = Memory.Read<IntPtr>(EntityList + 0x8 * ((PlayerPawn & 0x7FFF) >> 9) + 16);
@@ -43,7 +52,7 @@ namespace cs2.Game.Objects
         public override bool Update()
         {
             if (!base.Update()) return false;
-            if (Program.LocalPlayer.AddressBase == AddressBase)
+            if (LocalPlayer.Current.AddressBase == AddressBase)
                 return true;
 
             UpdateBones();
@@ -57,18 +66,30 @@ namespace cs2.Game.Objects
             WeaponPtr = Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_pClippingWeapon);
             Weapon.Update(WeaponPtr);
 
-            IntPtr entitySpottedStatePtr = Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_entitySpottedState);
-            SpottedState = Memory.Read<EntitySpottedState_t>(entitySpottedStatePtr);
+            SpottedState = Memory.Read<EntitySpottedState_t>(AddressBase + C_CSPlayerPawnBase.m_entitySpottedState);
 
             IsScoped = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsScoped) && Weapon.IsSniperRifle;
             IsDefusing = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsDefusing);
+            TeamColor = ToTeamColor(Memory.Read<int>(ControllerBase + CCSPlayerController.m_iCompTeammateColor));
+
+            float flashDuration = Memory.Read<float>(AddressBase + C_CSPlayerPawnBase.m_flFlashDuration);
+            float flashBangTime = Memory.Read<float>(AddressBase + C_CSPlayerPawnBase.m_flFlashBangTime);
+
+
+            FlashDuration = flashDuration;
+            FlashTimer =  flashBangTime - GlobalVars.CurrentTime + 0.8f;
+
+            if (FlashTimer < 0)
+                FlashTimer = 0;
+            if (FlashTimer > 5)
+                FlashTimer = 5;
 
             return true;
         }
 
         private void UpdateBones()
         {
-            if (Team == Program.LocalPlayer.Team)
+            if (Team == LocalPlayer.Current.Team)
                 return;
             IntPtr gameSceneNode = Memory.Read<IntPtr>(AddressBase + C_BaseEntity.m_pGameSceneNode);
             IntPtr boneArray = Memory.Read<IntPtr>(gameSceneNode + 0x160 + 128);
@@ -90,11 +111,11 @@ namespace cs2.Game.Objects
             }
         }
 
-        public bool CheckVisable()
+        public int CheckSpotted()
         {
-            //int v1 = (int)SpottedState.GetSpottedByMask() & (int)(1 << (int)Program.LocalPlayer.AddressBase);
-            //int v2 = (int)Program.LocalPlayer.SpottedState.GetSpottedByMask() & (int)(1 << PlayerPawn);
-            return SpottedState.m_bSpotted;
+            //int value = SpottedState.GetSpotted();
+            int value = SpottedState.GetSpotted() & (1 << (int)LocalPlayer.Current.AddressBase);
+            return value;
         }
 
         public override bool IsAlive()
@@ -102,9 +123,25 @@ namespace cs2.Game.Objects
             return base.IsAlive() && !Dormant;
         }
 
-        public Weapon Weapon { get; private set; }
+        private IBrush ToTeamColor(int color)
+        {
+            if (color == 0)
+                return Brushes.TeamBlue;
+            else if (color == 1)
+                return Brushes.Green;
+            else if (color == 2)
+                return Brushes.TeamYellow;
+            else if (color == 3)
+                return Brushes.TeamOrange;
+            else if (color == 4)
+                return Brushes.TeamPurple;
+            return Brushes.Red;
+        }
+
+        public IBrush TeamColor { get; private set; }
+        public Weapon Weapon { get; set; }
         private IntPtr WeaponPtr { get; set; }
-        public Vector3 HeadPos { get; private set; } = Vector3.Zero;
+        public Vector3 HeadPos { get; set; } = Vector3.Zero;
         public List<(Bone bone, Vector3 pos, int id)> Bones
         {
             get; set;
@@ -129,13 +166,17 @@ namespace cs2.Game.Objects
                 (Bone.ankle_R, Vector3.Zero, 27)        // 16
             };
         public EntitySpottedState_t SpottedState { get; private set; }
-        public int PlayerPawn {  get; set; }
+        public int PlayerPawn { get; set; }
         public int Index { get; private set; }
         public string Nickname { get; private set; }
         public bool IsSpotted { get; private set; }
-        public bool IsDefusing { get; private set; }
-        public bool IsScoped { get; private set; }
+        public bool IsDefusing { get; set; }
+        public float FlashDuration { get; set; }
+        public bool IsScoped { get; set; }
+        public float FlashTimer { get; set; }
+
         private bool Dormant { get; set; }
         private bool BonesOnly { get; set; }
+
     }
 }

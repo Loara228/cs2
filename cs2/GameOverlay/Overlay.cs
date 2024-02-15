@@ -1,18 +1,23 @@
-﻿using cs2.Game.Features;
+﻿using cs2.Game;
+using cs2.Game.Features;
 using cs2.Game.Objects;
+using cs2.GameOverlay.UI;
 using cs2.GameOverlay.UI.Controls;
 using cs2.GameOverlay.UI.Forms;
 using cs2.Offsets;
 using cs2.Offsets.Interfaces;
+using cs2.PInvoke;
 using GameOverlay.Drawing;
 using GameOverlay.Windows;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using static cs2.PInvoke.User32;
 
 namespace cs2.GameOverlay
 {
@@ -29,7 +34,7 @@ namespace cs2.GameOverlay
 
             Window = new GraphicsWindow(0, 0, 1920, 1080, g)
             {
-                FPS = 60,
+                FPS = 90,
                 IsTopmost = true,
                 IsVisible = true
             };
@@ -44,10 +49,9 @@ namespace cs2.GameOverlay
 
         private void Update()
         {
-            Input.Update();
-
+            GlobalVars.Update();
             Program.Entities.Clear();
-            Program.LocalPlayer.Update();
+            LocalPlayer.Current.Update();
             for (int i = 0; i < 12; i++)
             {
                 Entity entity = new(i);
@@ -55,29 +59,42 @@ namespace cs2.GameOverlay
                 Program.Entities.Add(entity);
             }
 
-            SpectatorList.Update();
+            Input.Update();
             Scoreboard.Update();
-
             keyHome.Update();
 
             if (keyHome.state == Input.KeyState.PRESSED)
-                _enableUI = !_enableUI;
-
-            if (_enableUI)
             {
-                foreach(var form in Forms)
+                drawUI = !drawUI;
+                if (drawUI)
                 {
-                    form.Update();
+                    var attributes = ExtendedWindowStyle.Topmost | ExtendedWindowStyle.Transparent /*| ExtendedWindowStyle.Layered | ExtendedWindowStyle.NoActivate*/;
+                    Input.PressKey(Input.ScanCodeShort.ESCAPE);
+                    User32.SetWindowLong(Window.Handle, -20, (int)attributes);
+                    User32.SendMessage(Window.Handle, 0x0020, IntPtr.Zero, IntPtr.Zero);
+                    // WM_SETCURSOR 
+                    // костыльное обновление курсора :)
                 }
+                else
+                {
+                    Input.PressKey(Input.ScanCodeShort.ESCAPE);
+                    var attributes = ExtendedWindowStyle.Topmost | ExtendedWindowStyle.Transparent | ExtendedWindowStyle.Layered | ExtendedWindowStyle.NoActivate;
+                    User32.SetWindowLong(Window.Handle, -20, (int)attributes);
+                }
+            }
+
+            if (drawUI)
+            {
+                UIForm.FocusedFrame = false;
+                Forms.OrderByDescending(x => x.Layer).ToList().ForEach(x => x.Update());
             }
         }
 
         private void Draw(Graphics g)
         {
             WallHack.Draw(g);
-            SpectatorList.Draw(g);
             AimAssist.Draw(g);
-
+            Crosshair.Draw(g);
             Scoreboard.Draw(g);
         }
 
@@ -88,29 +105,28 @@ namespace cs2.GameOverlay
 
             Draw(g);
 
-            if (_enableUI)
+            if (drawUI)
             {
                 g.FillRectangle(Brushes.HalfBlack, new Rectangle(0, 0, g.Width, g.Height));
-                foreach (var form in Forms)
-                {
-                    form.Draw(g);
-                }
             }
+            Forms.OrderBy(x => x.Layer).ToList().ForEach(x => x.Draw(g));
         }
 
         #region Events
 
         private void Window_SetupGraphics(object? sender, SetupGraphicsEventArgs e)
         {
+            Program.Log($"Window_SetupGraphics {e.Graphics.Width}, {e.Graphics.Height}");
             Brushes.Initialize(e.Graphics);
             Fonts.Initialize(e.Graphics);
-            InitializeForms();
+            InitializeForms(e.Graphics);
         }
 
         private void Window_DestroyGraphics(object? sender, DestroyGraphicsEventArgs e)
         {
             Brushes.Dispose();
             Fonts.Dispose();
+            Program.Log("setup graphics");
         }
 
         private void Window_DrawGraphics(object? sender, DrawGraphicsEventArgs e) => OnDraw(e.Graphics);
@@ -119,9 +135,19 @@ namespace cs2.GameOverlay
 
         #region Forms
 
-        private void InitializeForms()
+        private void InitializeForms(Graphics g)
         {
-            Forms = [new FormSpectators()];
+            UIControl.initGraphics = g;
+            UIForm f = new FormVisuals();
+            Forms = new List<UIForm>()
+            {
+                new FormSpectators(),
+                new FormRadar(),
+                f,
+                new FormAimAssist((int)f.Rect.Right + 10)
+            };
+
+            UIControl.initGraphics = null;
         }
 
         #endregion
@@ -161,8 +187,9 @@ namespace cs2.GameOverlay
             get; private set;
         }
 
+        public static bool drawUI;
+
         private Input.Key keyHome = new Input.Key(36);
-        private bool _enableUI;
         private bool _disposed;
     }
 }

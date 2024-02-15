@@ -14,31 +14,26 @@ namespace cs2.Game.Features
 {
     internal static class SpectatorList
     {
-        public static void Update()
+        public static List<string> Get()
         {
-            if (!Enabled)
-                return;
-            _spectators.Clear();
+            if (!LocalPlayer.Current.IsAlive())
+                return new List<string>() { "empty" };
+
+            List<string> spectators = new List<string>();
             foreach (var entity in Program.Entities)
             {
-                if (entity.AddressBase == 0 || entity.IsAlive() || entity.Team != Program.LocalPlayer.Team)
+                if (entity.AddressBase == 0 || entity.IsAlive() || entity.Team != LocalPlayer.Current.Team)
                     continue;
 
                 IntPtr obs = Memory.Read<IntPtr>(entity.AddressBase + C_BasePlayerPawn.m_pObserverServices);
                 IntPtr playerPawn = Memory.Read<IntPtr>(obs + CPlayer_ObserverServices.m_hObserverTarget);
                 IntPtr addressBase = ReadAddressBase(playerPawn);
 
-                if (addressBase == Program.LocalPlayer.AddressBase)
-                    _spectators.Add(entity.Nickname);
+                if (addressBase == LocalPlayer.Current.AddressBase)
+                    spectators.Add(entity.Nickname);
             }
-        }
 
-        public static void Draw(Graphics g)
-        {
-            if (!Enabled)
-                return;
-
-            g.DrawTextWithBackground(Fonts.Consolas, Brushes.White, Brushes.HalfBlack, new Point(10, 10), $"{string.Join("\n", _spectators)}");
+            return spectators;
         }
 
         private static IntPtr ReadAddressBase(IntPtr playerPawn)
@@ -49,12 +44,5 @@ namespace cs2.Game.Features
                 ? IntPtr.Zero
                 : Memory.Read<IntPtr>(listEntrySecond + 120 * (playerPawn & 0x1FF));
         }
-
-        public static bool Enabled
-        {
-            get; set;
-        } = true;
-
-        private static List<string> _spectators = new List<string>();
     }
 }

@@ -1,4 +1,5 @@
-﻿using cs2.GameOverlay.UI.Controls;
+﻿using cs2.Game.Features;
+using cs2.GameOverlay.UI.Controls;
 using GameOverlay.Drawing;
 using System;
 using System.Collections.Generic;
@@ -10,23 +11,34 @@ namespace cs2.GameOverlay.UI.Forms
 {
     internal class FormSpectators : UIForm
     {
-        public FormSpectators() : base(new Rectangle(30, 30, 0, 0), "Spec")
+        public FormSpectators() : base(Configuration.Current.FormSpectatorsPos.x, Configuration.Current.FormSpectatorsPos.y, "Spectators")
         {
-            this.MinWidth = 300;
+            this.GameForm = true;
+            this.MinWidth = 200;
             this.MinHeight = 60;
-            this.Width = 300;
-            this.Height = 300;
+            this.Width = 200;
+            this.Height = 60;
 
-            InitializeComponents();
+            Add(labelSpectators = new UILabel(Fonts.Consolas, Brushes.White, ""));
         }
 
-        private void InitializeComponents()
+        public override void Update()
         {
-            UIButton testButton;
-            Add(testButton = new UIButton(Brushes.UIHeaderColor, Brushes.UITextColor, Fonts.Consolas, 12, "BUTTON"));
-            UIButton testButton2;
-            Add(testButton2 = new UIButton(Brushes.UIHeaderColor, Brushes.UITextColor, Fonts.Consolas, 12, "BUTTON"));
-            testButton.Clicked += new Action(() => { Console.WriteLine("ButtonClicked"); });
+            if (!Configuration.Current.EnableSpectators)
+                return;
+            base.Update();
         }
+
+        public override void Draw(Graphics g)
+        {
+            if (!Configuration.Current.EnableSpectators)
+                return;
+            labelSpectators.Text = string.Join("\n", SpectatorList.Get());
+            Width = labelSpectators.Width + labelSpectators.Margin.Left * 2;
+            Height = HEADER_SIZE + labelSpectators.Height + labelSpectators.Margin.Top * 2;
+            base.Draw(g);
+        }
+
+        private UILabel labelSpectators;
     }
 }

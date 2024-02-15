@@ -9,30 +9,39 @@ namespace cs2.GameOverlay.UI
 {
     internal abstract class UIControl : IComponent
     {
+        public UIControl()
+        {
+            this.Rect = new Rectangle();
+        }
+
         public UIControl(Rectangle rect, IBrush backgroundBrush)
         {
             this.Rect = rect;
-            this.Brush = backgroundBrush;
+            this.BrushBackground = backgroundBrush;
 
             DrawBackground = true;
-
         }
 
-        public UIControl(Rectangle rect, IBrush backgroundBrush, int margin = 5, int minWidth = 0, int minHeight = 0)
+        public UIControl(int x, int y)
         {
-            this.Rect = rect;
-            this.Brush = backgroundBrush;
-            this.Offset = margin;
-            this.MinWidth = minWidth;
-            this.MinHeight = minHeight;
+            this.Rect = new Rectangle(x, y, x + 30, y + 30);
+        }
+
+        public UIControl(int x, int y, IBrush backgroundBrush)
+        {
+            this.Rect = new Rectangle(x, y, x + 30, y + 30);
+            this.BrushBackground = backgroundBrush;
 
             DrawBackground = true;
         }
+
 
         public virtual void Draw(Graphics g)
         {
             if (DrawBackground)
-                g.FillRectangle(Brush, Rect);
+                g.FillRectangle(BrushBackground, Rect);
+            if (BrushBorder != null)
+                g.DrawRectangle(BrushBorder, Rect, BorderSize);
         }
 
         public virtual void Update()
@@ -46,12 +55,17 @@ namespace cs2.GameOverlay.UI
 
         public Rectangle Rect
         {
-            get; private set;
+            get; protected set;
         }
 
-        public IBrush Brush
+        public IBrush BrushBackground
         {
-            get; private set;
+            get; set;
+        } = null!;
+
+        public IBrush? BrushBorder
+        {
+            get; set;
         } = null!;
 
         public int X
@@ -105,25 +119,32 @@ namespace cs2.GameOverlay.UI
         public int MinWidth
         {
             get; set;
-        } = 30;
+        } = 10;
 
         public int MinHeight
         {
             get; set;
-        } = 30;
+        } = 10;
 
         public bool DrawBackground
         {
             get; protected set;
         }
 
+        public float BorderSize
+        {
+            get; set;
+        } = 1;
+
         /// <summary>
         /// Default = 5
         /// </summary>
-        public int Offset
+        public Margin Margin
         {
             get; set;
-        } = 5;
+        } = new(5);
+
+        public static Graphics? initGraphics;
 
         private int _width, _height;
     }

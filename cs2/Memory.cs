@@ -16,6 +16,9 @@ namespace cs2
 
         public static bool Initialize()
         {
+            if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)
+                return false;
+
             var procList = Process.GetProcessesByName("cs2");
             if (procList.Length == 0)
                 return false;

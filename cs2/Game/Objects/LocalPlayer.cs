@@ -14,15 +14,25 @@ namespace cs2.Game.Objects
     {
         public LocalPlayer()
         {
-
+            Weapon = new Weapon();
         }
 
-        protected override nint ReadAddressBase()
+        public static void Initialize()
+        {
+            Current = new LocalPlayer();
+        }
+
+        public static LocalPlayer Current
+        {
+            get; private set;
+        }
+
+        public override nint ReadAddressBase()
         {
             return Memory.Read<IntPtr>(Memory.ClientPtr + ClientOffsets.dwLocalPlayerPawn);
         }
 
-        protected override nint ReadControllerBase()
+        public override nint ReadControllerBase()
         {
             return Memory.Read<IntPtr>(Memory.ClientPtr + ClientOffsets.dwLocalPlayerController);
         }
@@ -30,22 +40,28 @@ namespace cs2.Game.Objects
         {
             if (!base.Update()) return false;
 
-
             MatrixViewProjection = Matrix.Transpose(Memory.Read<Matrix>(Memory.ClientPtr + ClientOffsets.dwViewMatrix));
             MatrixViewport = Matrix.GetMatrixViewport(new System.Drawing.Size(1920, 1080));
             MatrixViewProjectionViewport = MatrixViewProjection * MatrixViewport;
 
-            IntPtr entitySpottedStatePtr = Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_entitySpottedState);
-            SpottedState = Memory.Read<EntitySpottedState_t>(entitySpottedStatePtr);
+            Weapon.Update(Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_pClippingWeapon));
 
+            //IntPtr entitySpottedStatePtr = Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_entitySpottedState);
+            //SpottedState = Memory.Read<EntitySpottedState_t>(entitySpottedStatePtr);
+
+            ViewAngles = Memory.Read<Vector3>(Memory.ClientPtr + ClientOffsets.dwViewAngles);
+
+            IsScoped = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsScoped) && Weapon.IsSniperRifle;
 
             return true;
         }
 
+        public Weapon Weapon { get; private set; }
+        public Vector3 ViewAngles { get; private set; }
         private Matrix MatrixViewProjection { get; set; }
         public Matrix MatrixViewport { get; private set; }
         public Matrix MatrixViewProjectionViewport { get; private set; }
-
         public EntitySpottedState_t SpottedState { get; private set; }
+        public bool IsScoped { get; private set; }
     }
 }
