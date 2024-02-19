@@ -13,15 +13,17 @@ namespace cs2.GameOverlay.UI
             Left = offset;
             Top = offset;
             Bottom = offset;
+            Right = offset;
         }
 
-        public Margin(int left, int top, int bottom)
+        public Margin(int left, int top, int bottom, int right = 5)
         {
             Left = left;
             Top = top;
             Bottom = bottom;
+            Right = right;
         }
 
-        public int Left, Top, Bottom;
+        public int Left, Top, Bottom, Right;
     }
 }

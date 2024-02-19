@@ -3,12 +3,12 @@ using cs2.Game.Objects;
 using cs2.GameOverlay;
 using cs2.Offsets;
 using cs2.PInvoke;
+using System.Numerics;
+using System;
 using System.Runtime.InteropServices;
 
 //todo:
-//wh: FLASH, RELOADING, AMMO, NICKNAMES
 //wh: aimdir on key (line steps)?
-//world esp: nades, weapons
 //sound esp
 //config and offsets UI
 //dmg
@@ -16,9 +16,11 @@ using System.Runtime.InteropServices;
 //
 
 //wh toggle
-//bhop
 //conf form
-//controls: rowContainer, tip
+//controls: rowContainer, tip, msgBox
+//offsets loader from dir. (ui)
+// CCollisionProperty
+// C_Inferno - molotov
 
 namespace cs2
 {
@@ -27,14 +29,9 @@ namespace cs2
     {
         static void Main(string[] args)
         {
-            if (args.Contains("-fromDir"))
-                OffsetsLoader.type = LoadType.FROM_DIR;
-            else
-                OffsetsLoader.type = LoadType.FROM_GIT;
-
             Input.Initialize();
             LocalPlayer.Initialize();
-            if (!OffsetsLoader.Initialize())
+            if (!OffsetsLoader.Initialize(LoadType.FROM_GIT))
             {
                 Log("offsets init failed", ConsoleColor.Red);
                 Console.ReadKey();
@@ -47,7 +44,18 @@ namespace cs2
                 Environment.Exit(0);
             }
             AimAssist.Start();
-            new Overlay();
+            WorldEsp.Start();
+            new Thread(() =>
+            {
+                Program.Log($"success", ConsoleColor.Green);
+                for (int i = 3; i > 0; i--)
+                {
+                    Program.Log(i);
+                    Thread.Sleep(1000);
+                }
+                Console.Clear();
+            }).Start();
+            new Overlay(); // thr join
         }
 
         public static void Log(string text, ConsoleColor color = ConsoleColor.Gray)
@@ -57,9 +65,18 @@ namespace cs2
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
+        public static void Log(int integer, ConsoleColor color = ConsoleColor.Gray)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(integer.ToString());
+            Console.ForegroundColor = ConsoleColor.Gray;
+        }
+
         public static List<Entity> Entities
         {
             get; set;
         } = new List<Entity>();
+
+        public static int ENTITY_LIST_COUNT = 32;
     }
 }

@@ -28,6 +28,7 @@ namespace cs2.PInvoke
         // https://github.com/dotnet/pinvoke/blob/main/src/User32/User32%2BWindowMessage.cs#L18
         [DllImport("User32.dll")]
         public static extern unsafe IntPtr SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
+
         public enum WindowShowStyle : uint
         {
             /// <summary>Hides the window and activates another window.</summary>

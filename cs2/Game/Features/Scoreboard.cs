@@ -100,13 +100,13 @@ namespace cs2.Game.Features
             g.DrawText(Fonts.Consolas, 12, Brushes.White, new Point(left, elementRect.Top + 20), $"Money: {pData.m_iAccount}");
             g.DrawText(Fonts.Consolas, 12, Brushes.White, new Point(left, elementRect.Top + 30), $"Spent: {pData.m_iCashSpentThisRound}");
 
-            Rectangle rectWins = g.GetTextRect(Fonts.Consolas, $"{pData.wins} Wins", 0, 0);
+            Rectangle rectWins = g.GetTextRect(Fonts.Consolas, $"{pData.wins} Wins", out _, 0, 0);
             g.DrawText(Fonts.Consolas, Brushes.White, elementRect.Right - rectWins.Width - SCOREBOARD_ELEMENT_OFFSET, elementRect.Top + SCOREBOARD_ELEMENT_OFFSET, $"{pData.wins} Wins");
 
-            Rectangle rectWinPred = g.GetTextRect(Fonts.Consolas, $"+{pData.predicted_Win}", 0, 0);
+            Rectangle rectWinPred = g.GetTextRect(Fonts.Consolas, $"+{pData.predicted_Win}", out _, 0, 0);
             g.DrawText(Fonts.Consolas, Brushes.Green, elementRect.Right - rectWinPred.Width - SCOREBOARD_ELEMENT_OFFSET, elementRect.Top + 20 + SCOREBOARD_ELEMENT_OFFSET, $"+{pData.predicted_Win}");
             
-            Rectangle rectLossPred = g.GetTextRect(Fonts.Consolas, $"{pData.predicted_Loss}", 0, 0);
+            Rectangle rectLossPred = g.GetTextRect(Fonts.Consolas, $"{pData.predicted_Loss}", out _, 0, 0);
             g.DrawText(Fonts.Consolas, Brushes.Red, elementRect.Right - rectLossPred.Width - SCOREBOARD_ELEMENT_OFFSET, elementRect.Top + 30 + SCOREBOARD_ELEMENT_OFFSET, $"{pData.predicted_Loss}");
 
         }

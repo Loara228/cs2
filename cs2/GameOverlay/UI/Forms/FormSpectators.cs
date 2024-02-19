@@ -19,6 +19,7 @@ namespace cs2.GameOverlay.UI.Forms
             this.Width = 200;
             this.Height = 60;
 
+            onMove += (int x, int y) => { Configuration.Current.FormSpectatorsPos = new Vec2i(X, Y); };
             Add(labelSpectators = new UILabel(Fonts.Consolas, Brushes.White, ""));
         }
 
@@ -37,6 +38,12 @@ namespace cs2.GameOverlay.UI.Forms
             Width = labelSpectators.Width + labelSpectators.Margin.Left * 2;
             Height = HEADER_SIZE + labelSpectators.Height + labelSpectators.Margin.Top * 2;
             base.Draw(g);
+        }
+
+        public override void ApplyConfig()
+        {
+            Position = new Point(Configuration.Current.FormSpectatorsPos.x, Configuration.Current.FormSpectatorsPos.y);
+            base.ApplyConfig();
         }
 
         private UILabel labelSpectators;

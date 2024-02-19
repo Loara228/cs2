@@ -36,14 +36,18 @@ namespace cs2.GameOverlay
             _uiTextColor = _white;
             _uiActiveColor = g.CreateSolidBrush(113, 96, 232, 255);
             _uiActiveColorSecond = g.CreateSolidBrush(153, 153, 153, 255);
+            _uiActiveColorThird = g.CreateSolidBrush(25, 25, 26, 255);
             _uiBorderColor = g.CreateSolidBrush(56, 56, 56, 255);
+            _uiButtonMouseOn = g.CreateSolidBrush(66, 66, 66);
 
-            // opacity
+            // overlay hide
             _uiBorderColor2 = g.CreateSolidBrush(0, 0, 0, 70);
             _uiHeaderColor2 = g.CreateSolidBrush(0, 0, 0, 180);
             _uiBackgroundColor2 = g.CreateSolidBrush(0, 0, 0, 50);
 
             _fovColor = g.CreateSolidBrush(255, 255, 255, 100);
+
+            _share = g.CreateSolidBrush(0, 0, 0, 255);
 
         }
 
@@ -64,6 +68,8 @@ namespace cs2.GameOverlay
         public static SolidBrush ScoreboardElementT { get => _scoreboardElementT; }
         public static SolidBrush ScoreboardElementCT { get => _scoreboardElementCT; }
 
+        public static SolidBrush Share { get => _share; }
+
         #region TeamColor
 
         public static SolidBrush TeamYellow { get => _teamYellow; }
@@ -80,11 +86,13 @@ namespace cs2.GameOverlay
         public static SolidBrush UIBorderColor { get => _uiBorderColor; }
         public static SolidBrush UIActiveColor { get => _uiActiveColor; }
         public static SolidBrush UIActiveColorSecond { get => _uiActiveColorSecond; }
+        public static SolidBrush UIActiveColorThird { get => _uiActiveColorThird; }
         public static SolidBrush UIHeaderColor { get => _uiHeaderColor; }
         public static SolidBrush UITextColor { get => _uiTextColor; }
         public static SolidBrush UIBackgroundColor2 { get => _uiBackgroundColor2; }
         public static SolidBrush UIHeaderColor2 { get => _uiHeaderColor2; }
         public static SolidBrush UIBorderColor2 { get => _uiBorderColor2; }
+        public static SolidBrush UIButtonMouseOn { get => _uiButtonMouseOn; }
 
         #endregion
 
@@ -123,11 +131,15 @@ namespace cs2.GameOverlay
         private static SolidBrush _uiBorderColor2 = null!;
         private static SolidBrush _uiActiveColor = null!;
         private static SolidBrush _uiActiveColorSecond = null!;
+        private static SolidBrush _uiActiveColorThird = null!;
 
         private static SolidBrush _uiHeaderColor = null!;
         private static SolidBrush _uiHeaderColor2 = null!;
         private static SolidBrush _uiTextColor = null!;
+        private static SolidBrush _uiButtonMouseOn = null!;
 
         #endregion
+
+        private static SolidBrush _share = null!;
     }
 }

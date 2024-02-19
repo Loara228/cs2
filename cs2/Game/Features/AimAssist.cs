@@ -11,6 +11,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using static cs2.Offsets.OffsetsLoader;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace cs2.Game.Features
 {
@@ -38,11 +39,11 @@ namespace cs2.Game.Features
 
         private static void Update()
         {
-            vkBind.Update();
+            vkBindXBtn.Update();
 
             if (!Configuration.Current.EnableAimAssist)
             {
-                Thread.Sleep(1);
+                Thread.Sleep(100);
                 return;
             }
 
@@ -61,7 +62,7 @@ namespace cs2.Game.Features
             g.DrawCircle(Brushes.FOVColor, _screenCenter.X, _screenCenter.Y, FOVRadius, 1);
             if (_targetPos2D != Vector2.Zero)
             {
-                if (_targetPos == Vector3.Zero)
+                if (_targetPtr == IntPtr.Zero)
                 {
                     if (_targetPos2D != Vector2.Zero)
                     {
@@ -69,7 +70,7 @@ namespace cs2.Game.Features
                         _targetPos2D = Vector2.Zero;
                     }
                 }
-                else
+                else if (_targetPos != Vector3.Zero)
                 {
                     var pos = _targetPos.ToScreenPos();
                     if (pos.IsValidScreen())
@@ -85,33 +86,32 @@ namespace cs2.Game.Features
                 Thread.Sleep(1000);
                 return;
             }
-            Triggerbot.Update(vkBind.state);
+            Triggerbot.Update(vkBindXBtn.state);
         }
 
         private static void Aim(Entity entity)
         {
-            if (_targetPtr == IntPtr.Zero)
-                return;
+            //if (_targetPtr == IntPtr.Zero)
+            //    return;
+            //Vector3 angleRCS = Vector3.Zero;
+            //if (ShotsFired > 1)
+            //{
+            //    // RCS
+            //    angleRCS = AimPunchAngle * 2;
+            //}
 
-            Vector3 angle = CalcAngle(EyePosition, _targetPos, ViewAngles);
+            //Vector3 angle = CalcAngle(EyePosition, _targetPos + angleRCS + (entity.Velocity / 15f), ViewAngles);
 
-            double absX = Math.Abs(angle.X);
-            double absY = Math.Abs(angle.Y);
-            if (absX > 50 || absY > 50)
-                return;
+            //double absX = Math.Abs(angle.X);
+            //double absY = Math.Abs(angle.Y);
+            //if (absX > 50 || absY > 50)
+            //    return;
 
-            if (absX < 0.3f && absY < 0.3f)
-            {
-                int xMove2 = -(int)(angle.Y * Configuration.Current.AimAssistMult);
-                int yMove2 = (int)(angle.X * Configuration.Current.AimAssistMult);
-                Input.MouseMove(xMove2, yMove2);
-                Triggerbot.Shot();
-            }
+            //int xMove = -(int)(angle.Y * Configuration.Current.AimAssistMult);
+            //int yMove = (int)(angle.X * Configuration.Current.AimAssistMult);
 
-            int xMove = -(int)(angle.Y * Configuration.Current.AimAssistMult);
-            int yMove = (int)(angle.X * Configuration.Current.AimAssistMult);
 
-            Input.MouseMove(xMove, yMove);
+            //Input.MouseMove(xMove, yMove);
         }
 
         private static void UpdateAim()
@@ -119,29 +119,28 @@ namespace cs2.Game.Features
             UpdateAngles();
 
             _entities.Clear();
-            for (int i = 0; i < 12; i++)
+            for (int i = 0; i < Program.ENTITY_LIST_COUNT; i++)
             {
                 Entity entity = new(i, true);
                 entity.Update();
 
-                if (!entity.IsAlive() || entity.Team == LocalPlayer.Current.Team)
+                if (!entity.IsAlive() || !entity.CheckTeam())
                     continue;
-
+                entity.UpdateAimProperties();
                 _entities.Add(entity);
             }
 
-            if (vkBind.state == Input.KeyState.DOWN && _targetPtr == 0)
+            if ((vkBindXBtn.state == Input.KeyState.DOWN || ShotsFired > 1) && _targetPtr == IntPtr.Zero)
                 FindTarget();
-            else if (vkBind.state == Input.KeyState.NONE)
-                FindTarget(true);
-            else if (vkBind.state == Input.KeyState.RELEASE)
+            //else if (vkBindXBtn.state == Input.KeyState.NONE)
+            //    FindTarget(true);
+            else if (vkBindXBtn.state == Input.KeyState.RELEASE)
             {
                 _targetPos = Vector3.Zero;
                 _targetPtr = IntPtr.Zero;
                 _targetBone = Bone.UNKNOWN;
-                Triggerbot.Shot();
             }
-            else if (vkBind.state == Input.KeyState.DOWN)
+            if (vkBindXBtn.state == Input.KeyState.DOWN || ShotsFired > 1)
             {
                 if (_targetPtr == IntPtr.Zero)
                     return;
@@ -233,6 +232,7 @@ namespace cs2.Game.Features
             ViewAngles = Memory.Read<Vector3>(Memory.ClientPtr + ClientOffsets.dwViewAngles);
             AimPunchAngle = Memory.Read<Vector3>(AddressBase + C_CSPlayerPawn.m_aimPunchAngle);
             AimDirection = GetAimDirection(ViewAngles, AimPunchAngle);
+            ShotsFired = Memory.Read<int>(AddressBase + C_CSPlayerPawnBase.m_iShotsFired);
         }
 
         #region Calc
@@ -250,17 +250,6 @@ namespace cs2.Game.Features
             ));
         }
 
-        private static Vector3 CalcAngle(Vector3 localPos, Vector3 targerPos, Vector3 viewAngles) =>
-            ToAngle(targerPos - localPos) - viewAngles;
-
-        private static Vector3 ToAngle(Vector3 vec3) =>
-            new Vector3(
-                (float)(Math.Atan2(-vec3.Z, Hypot(vec3.X, vec3.Y)) * (180 / Math.PI)),
-                (float)(Math.Atan2(vec3.Y, vec3.X) * (180f / Math.PI)),
-                0);
-
-        private static double Hypot(float a, float b) => Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
-
         #endregion
 
         #region Properties
@@ -271,12 +260,11 @@ namespace cs2.Game.Features
         public static Vector3 ViewAngles { get; set; }
         public static Vector3 AimPunchAngle { get; private set; }
         public static Vector3 AimDirection { get; private set; }
+        public static int ShotsFired { get; private set; }
 
         #endregion
 
         #endregion
-
-        public static Input.Key vkBind = new Input.Key(6);
 
         public static bool Waiting
         {
@@ -292,6 +280,9 @@ namespace cs2.Game.Features
         }
 
         private static List<Entity> _entities = new List<Entity>();
+
+        public static Input.Key vkBindXBtn = new Input.Key(6);
+        //public static Input.Key vkBindLBtn = new Input.Key(1);
 
         internal static IntPtr _targetPtr = IntPtr.Zero;
         internal static Vector3 _targetPos = Vector3.Zero;

@@ -14,11 +14,14 @@ namespace cs2.GameOverlay.UI.Forms
     {
         public FormRadar() : base(Configuration.Current.FormRadarPos.x, Configuration.Current.FormRadarPos.y, "Radar")
         {
-            this.GameForm = true;
-            this.MinWidth = 300;
-            this.MinHeight = 60;    
+            this.MinWidth = 100;
+            this.MinHeight = 100 + UIForm.HEADER_SIZE;    
             this.Width = 280;
             this.Height = 280 + HEADER_SIZE;
+            this.Resizable = true;
+
+            onMove += (int x, int y) => { Configuration.Current.FormRadarPos = new Vec2i(X, Y); };
+            onResizing += (int w, int h) => { Configuration.Current.FormRadarSize = new Vec2i(Width, Height); };
         }
 
         public override void Update()
@@ -34,6 +37,14 @@ namespace cs2.GameOverlay.UI.Forms
                 return;
             base.Draw(g);
             Radar.Draw(g, RadarBounds);
+        }
+
+        public override void ApplyConfig()
+        {
+            Position = new Point(Configuration.Current.FormRadarPos.x, Configuration.Current.FormRadarPos.y);
+            Width = Configuration.Current.FormRadarSize.x;
+            Height = Configuration.Current.FormRadarSize.y;
+            base.ApplyConfig();
         }
 
         public Rectangle RadarBounds

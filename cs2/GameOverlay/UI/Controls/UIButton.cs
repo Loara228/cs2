@@ -9,27 +9,58 @@ namespace cs2.GameOverlay.UI.Controls
 {
     internal class UIButton : UIControl
     {
-        public UIButton(IBrush backgroundBrush, IBrush textColor, Font font, string text = "") : base(new Rectangle(0, 0, 0, 0), backgroundBrush)
+        public UIButton(string text) : base()
+        {
+            DrawBackground = true;
+            Font = Fonts.Consolas;
+            Text = text;
+            TextColor = Brushes.White;
+            BrushBackground = Brushes.UIHeaderColor;
+
+            MinWidth = 80;
+            MinHeight = 30;
+        }
+        public UIButton(string text, Action clicked) : base()
+        {
+            DrawBackground = true;
+            Font = Fonts.Consolas;
+            Text = text;
+            TextColor = Brushes.White;
+            BrushBackground = Brushes.UIHeaderColor;
+
+            MinWidth = 80;
+            MinHeight = 30;
+
+            this.Clicked = clicked;
+        }
+
+        public UIButton(Font font, string text = "") : base()
         {
             DrawBackground = true;
 
             Font = font;
-            TextColor = textColor;
+            BrushBackground = Brushes.UIHeaderColor;
+            TextColor = Brushes.White;
             Text = text;
 
-            MinWidth = 100;
-            MinHeight = 100;
-
-            Margin = new Margin(10);
+            MinWidth = 80;
+            MinHeight = 50;
         }
 
         public override void Update()
         {
             base.Update();
 
-            if (Rect.IsMouseOn() && Input.MouseLeft.state == Input.KeyState.PRESSED)
+            if (Rect.IsMouseOn())
             {
-                Clicked?.Invoke();
+                BrushBackground = Brushes.UIButtonMouseOn;
+
+                if (Input.MouseLeft.state == Input.KeyState.PRESSED)
+                    Clicked?.Invoke();
+            }
+            else
+            {
+                BrushBackground = Brushes.UIHeaderColor;
             }
         }
 
@@ -37,8 +68,8 @@ namespace cs2.GameOverlay.UI.Controls
         {
             base.Draw(g);
 
-            Rectangle rectText = g.GetTextRect(Font, Text, 0, 0);
-            g.DrawText(Font, TextColor, new Point(this.X + this.Width / 2 - rectText.Width / 2, this.Y + this.Height / 2 - rectText.Height / 2), Text);
+            Rectangle rectText = g.GetTextRect(Font, Text, out float num);
+            g.DrawText(Font, TextColor, new Point(this.X + this.Width / 2 - rectText.Width / 2 + num, this.Y + this.Height / 2 - rectText.Height / 2 + num), Text);
         }
 
         public string Text
@@ -56,6 +87,11 @@ namespace cs2.GameOverlay.UI.Controls
             get; set;
         }
 
-        public Action Clicked;
+        public float FontSize
+        {
+            get; set;
+        }
+
+        public Action? Clicked;
     }
 }

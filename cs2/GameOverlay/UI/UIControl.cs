@@ -48,9 +48,9 @@ namespace cs2.GameOverlay.UI
         {
         }
 
-        public UIControl? Owner
+        public virtual void ApplyConfig()
         {
-            get; protected set;
+
         }
 
         public Rectangle Rect

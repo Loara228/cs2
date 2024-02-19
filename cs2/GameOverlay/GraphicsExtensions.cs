@@ -48,9 +48,13 @@ namespace cs2.GameOverlay
         //    return MathF.Sqrt(((v2.X - v1.X) * (v2.X - v1.X)) + ((v2.Y - v1.Y) * (v2.Y - v1.Y)));
         //}
 
-        public static Rectangle GetTextRect(this Graphics g, global::GameOverlay.Drawing.Font font, string text, float x = 0, float y = 0)
+        public static Rectangle GetTextRect(this Graphics g, global::GameOverlay.Drawing.Font font, string text, out float rectOffset, float x = 1, float y = 1)
         {
-            float fontSize = font.FontSize;
+            return GetTextRect(g, font, font.FontSize, text, out rectOffset, x, y);
+        }
+
+        public static Rectangle GetTextRect(this Graphics g, global::GameOverlay.Drawing.Font font, float fontSize, string text, out float rectOffset, float x = 1, float y = 1)
+        {
             float num = (x < 0f) ? ((float)g.Width + x) : ((float)g.Width - x);
             float num2 = (y < 0f) ? ((float)g.Height + y) : ((float)g.Height - y);
             if (num <= fontSize)
@@ -62,10 +66,16 @@ namespace cs2.GameOverlay
                 num2 = (float)g.Height;
             }
             TextLayout textLayout = new TextLayout(Fonts.FontFactory, text, font.TextFormat, num, num2);
+            if (fontSize != font.FontSize)
+            {
+                textLayout.SetFontSize(fontSize, new TextRange(0, text.Length));
+            }
             float num3 = fontSize * 0.25f;
             RawRectangleF rect = new RawRectangleF(x - num3, y - num3, x + textLayout.Metrics.Width + num3, y + textLayout.Metrics.Height + num3);
 
             textLayout.Dispose();
+
+            rectOffset = num3;
 
             return new Rectangle(rect.Left, rect.Top, rect.Right, rect.Bottom);
         }
@@ -97,7 +107,7 @@ namespace cs2.GameOverlay
 
         public static bool IsMouseOn(this Circle c)
         {
-            return Touching(new Vector2(Input.CursorPos.X, Input.CursorPos.Y) , c, c.Location.X, c.Location.Y);
+            return Touching(new Vector2(Input.CursorPos.X, Input.CursorPos.Y), c, c.Location.X, c.Location.Y);
         }
 
         private const float _PI_Over_180 = (float)Math.PI / 180.0f;

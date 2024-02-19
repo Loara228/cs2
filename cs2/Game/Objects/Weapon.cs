@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using static cs2.Offsets.OffsetsLoader;
@@ -10,22 +11,37 @@ namespace cs2.Game.Objects
 {
     internal class Weapon
     {
-        public Weapon()
+        public Weapon(IntPtr ptr)
         {
+			this.WeaponPtr = ptr;
             //CCSWeaponBaseVData
             //C_CSWeaponBase 
         }
 
+		public Weapon()
+		{
+
+		}
+
         public void Update(IntPtr ptr)
         {
             WeaponPtr = ptr;
-            WeaponIndex = (WeaponDefIndex)Memory.Read<short>(WeaponPtr + 0x1098 + 0x50 + 0x1BA); // C_EconEntity.m_AttributeManager + m_Item + m_iItemDefinitionIndex 0x1158
+			UpdateIndex();
+			UpdateAmmo();
+        }
 
+		public void UpdateIndex()
+        {
+            WeaponIndex = (WeaponDefIndex)Memory.Read<short>(WeaponPtr + 0x1098 + 0x50 + 0x1BA); // C_EconEntity.m_AttributeManager + m_Item + m_iItemDefinitionIndex 0x1158
+        }
+
+		public void UpdateAmmo()
+        {
             Ammo1 = Memory.Read<int>(WeaponPtr + C_BasePlayerWeapon.m_iClip1);
             Ammo2 = Memory.Read<int>(WeaponPtr + C_BasePlayerWeapon.m_iClip1 + sizeof(int) * 2);
         }
 
-        public char ToIcon()
+        public virtual char ToIcon()
         {
 			if (WeaponIndex == WeaponDefIndex.Deagle) return '\uE001';
 			else if (WeaponIndex == WeaponDefIndex.Elite) return '\uE002';
@@ -97,9 +113,10 @@ namespace cs2.Game.Objects
         }
 
         public WeaponDefIndex WeaponIndex { get; set; }
-
-        private IntPtr WeaponPtr { get; set; }
-
+        public IntPtr WeaponPtr { get; protected set; }
+		public string Name { get; set; }
+		public Vector3 Origin { get; set; }
+		public int State { get; set; }
         public int Ammo1 { get; set; }
         public int Ammo2 { get; set; }
     }

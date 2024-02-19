@@ -10,7 +10,7 @@ namespace cs2.Offsets
 {
     internal static class OffsetsLoader
     {
-        public static bool Initialize()
+        public static bool Initialize(LoadType type)
         {
             Program.Log($"Load.{type}");
 
@@ -40,7 +40,6 @@ namespace cs2.Offsets
                     string offsetsData = wc.DownloadString(offseltsUrl);
 
                     ParseData(clientDllData, offsetsData);
-
                     return true;
                 }
             }
@@ -80,6 +79,8 @@ namespace cs2.Offsets
         {
             Load(ClientOffsets, offsetsData);
 
+            DumpTime = clientDllData.Substring(0, clientDllData.IndexOf("*/"));
+
             Load(C_BaseEntity, clientDllData);
             Load(CBasePlayerController, clientDllData);
             Load(C_BasePlayerPawn, clientDllData);
@@ -98,8 +99,10 @@ namespace cs2.Offsets
         private static void Load(InterfaceBase @interface, string fileData)
         {
             @interface.ParseInterface(fileData);
-            Program.Log($"{@interface.Name} loaded", ConsoleColor.DarkGray);
+            Program.Log($"{@interface.Name}", ConsoleColor.DarkGray);
         }
+
+        public static string DumpTime { get; private set; }
 
         public static C_BaseEntity C_BaseEntity
         {
@@ -170,7 +173,5 @@ namespace cs2.Offsets
         {
             get; private set;
         } = null!;
-
-        public static LoadType type = LoadType.FROM_GIT;
     }
 }

@@ -34,7 +34,7 @@ namespace cs2.Game.Objects
 
         public override IntPtr ReadControllerBase()
         {
-            var listEntryFirst = Memory.Read<IntPtr>(EntityList + ((8 * (Index & 0x7FFF)) >> 9) + 16);
+            var listEntryFirst = Memory.Read<IntPtr>(EntityList + ((8 * (Index & 0x7FFF)) >> 9) + 0x10);
             return listEntryFirst == IntPtr.Zero
                 ? IntPtr.Zero
                 : Memory.Read<IntPtr>(listEntryFirst + 120 * (Index & 0x1FF));
@@ -43,7 +43,7 @@ namespace cs2.Game.Objects
         public override IntPtr ReadAddressBase()
         {
             PlayerPawn = Memory.Read<int>(ControllerBase + CBasePlayerController.m_hPawn);
-            var listEntrySecond = Memory.Read<IntPtr>(EntityList + 0x8 * ((PlayerPawn & 0x7FFF) >> 9) + 16);
+            var listEntrySecond = Memory.Read<IntPtr>(EntityList + 0x8 * ((PlayerPawn & 0x7FFF) >> 9) + 0x10);
             return listEntrySecond == IntPtr.Zero
                 ? IntPtr.Zero
                 : Memory.Read<IntPtr>(listEntrySecond + 120 * (PlayerPawn & 0x1FF));
@@ -77,7 +77,7 @@ namespace cs2.Game.Objects
 
 
             FlashDuration = flashDuration;
-            FlashTimer =  flashBangTime - GlobalVars.CurrentTime + 0.8f;
+            FlashTimer =  flashBangTime - GlobalVars.CurrentTime - 0.8f;
 
             if (FlashTimer < 0)
                 FlashTimer = 0;
@@ -87,9 +87,14 @@ namespace cs2.Game.Objects
             return true;
         }
 
+        public void UpdateAimProperties()
+        {
+            Velocity = Memory.Read<Vector3>(AddressBase + C_BaseEntity.m_vecVelocity);
+        }
+
         private void UpdateBones()
         {
-            if (Team == LocalPlayer.Current.Team)
+            if (!CheckTeam())
                 return;
             IntPtr gameSceneNode = Memory.Read<IntPtr>(AddressBase + C_BaseEntity.m_pGameSceneNode);
             IntPtr boneArray = Memory.Read<IntPtr>(gameSceneNode + 0x160 + 128);
@@ -120,7 +125,16 @@ namespace cs2.Game.Objects
 
         public override bool IsAlive()
         {
-            return base.IsAlive() && !Dormant;
+            return base.IsAlive() && !Dormant && LocalPlayer.Current.AddressBase != AddressBase;
+        }
+
+        public bool CheckTeam()
+        {
+            if (Team == Team.CounterTerrorist || Team == Team.Terrorist)
+            {
+                return Configuration.Current.DM_Mode_Enabled ? true : Team != LocalPlayer.Current.Team;
+            }
+            return false;
         }
 
         private IBrush ToTeamColor(int color)
@@ -137,6 +151,8 @@ namespace cs2.Game.Objects
                 return Brushes.TeamPurple;
             return Brushes.Red;
         }
+
+        public Vector3 Velocity { get; private set; }
 
         public IBrush TeamColor { get; private set; }
         public Weapon Weapon { get; set; }

@@ -13,11 +13,22 @@ namespace cs2.Game.Features
     {
         public static void Draw(Graphics g, Rectangle radarRect)
         {
+            if (Overlay.drawUI)
+                return;
+
             Vector2 radarCenter = new Vector2(radarRect.Left + radarRect.Width / 2, radarRect.Top + radarRect.Height / 2);
 
-            foreach(Entity entity in Program.Entities)
+            g.FillRectangle(Brushes.UIBackgroundColor2, radarRect);
+            g.DrawRectangle(Brushes.UIBackgroundColor2, radarRect, 1);
+
+            g.DrawLine(Brushes.UIBorderColor2, new Line(new Point(radarRect.Left, radarCenter.Y),
+                                                        new Point(radarRect.Right, radarCenter.Y)), 0.5f);
+            g.DrawLine(Brushes.UIBorderColor2, new Line(new Point(radarCenter.X, radarRect.Top),
+                                                        new Point(radarCenter.X, radarRect.Bottom)), 0.5f);
+
+            foreach (Entity entity in Program.Entities)
             {
-                if (!entity.IsAlive() || entity.Team == LocalPlayer.Current.Team)
+                if (!entity.IsAlive() || !entity.CheckTeam())
                     continue;
 
                 Vector3 localPos = LocalPlayer.Current.Origin;
@@ -30,12 +41,8 @@ namespace cs2.Game.Features
                 if (entityRadarPos == Vector2.Zero)
                     return;
 
-                g.FillCircle(entity.TeamColor, entityRadarPos.X, entityRadarPos.Y, Configuration.Current.RadarEnemyRadius + 1);
-                g.DrawLine(Brushes.UIBorderColor2, new Line(new Point(radarRect.Left, radarCenter.Y),
-                                                            new Point(radarRect.Right, radarCenter.Y)), 1);
-                g.DrawLine(Brushes.UIBorderColor2, new Line(new Point(radarCenter.X, radarRect.Top),
-                                                            new Point(radarCenter.X, radarRect.Bottom)), 1);
 
+                g.FillCircle(entity.TeamColor, entityRadarPos.X, entityRadarPos.Y, Configuration.Current.RadarEnemyRadius + 1);
             }
         }
 
@@ -68,7 +75,5 @@ namespace cs2.Game.Features
 
             return rotatedPoint;
         }
-
-        public static float scale = 1f;
     }
 }

@@ -9,11 +9,9 @@ namespace cs2.GameOverlay.UI.Forms
 {
     internal class FormAimAssist : UIForm
     {
-        public FormAimAssist(int x) : base(x, 1080 / 2 - SIZE_Y / 2, "Aim")
+        public FormAimAssist(int x) : base(x, 0, "Aim")
         {
-            this.MinHeight = 10;
             this.Width = 200;
-            this.Height = 190;
             InitializeComponents();
         }
 
@@ -42,7 +40,5 @@ namespace cs2.GameOverlay.UI.Forms
 
         private void SliderFOV_OnValueChanged(float value) => Configuration.Current.FOV_Radius = value + 50;
         private void SliderAimMult_OnValueChanged(float value) => Configuration.Current.AimAssistMult = value + 1;
-
-        private const int SIZE_Y = 300;
     }
 }

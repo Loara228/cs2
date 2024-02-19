@@ -17,8 +17,8 @@ namespace cs2.GameOverlay.UI.Controls
         public UIEntityPreview() : base()
         {
             DrawBackground = true;
-            BrushBackground = Brushes.UIHeaderColor;
-            Width = 216;
+            BrushBackground = Brushes.UIActiveColorThird;
+            Width = 316; // 216
             Height = 408;
 
             entity = new Entity();
@@ -72,9 +72,9 @@ namespace cs2.GameOverlay.UI.Controls
 
         public void Attach(UIForm form)
         {
-            Position = new Point(form.Rect.Right - Width - 1, form.Rect.Top + UIForm.HEADER_SIZE + form.Height / 2 - Height / 2);
-            Height = form.Height - UIForm.HEADER_SIZE - 1;
-            Y = form.Y + UIForm.HEADER_SIZE;
+            Position = new Point(form.Rect.Right - Width - 1, form.Rect.Top + UIForm.HEADER_SIZE + 1 + form.Height / 2 - Height / 2);
+            Y = form.Y + UIForm.HEADER_SIZE + 6;
+            Height = form.Height - UIForm.HEADER_SIZE - 7;
             form.onMove += Move;
         }
 
@@ -109,6 +109,8 @@ namespace cs2.GameOverlay.UI.Controls
             {
                 Rect = new Rectangle(value.X, value.Y, value.X + Width, value.Y + Height);
 
+                X += Width / 2 - w / 2;
+
                 for (int i = 0; i < entity.Bones.Count; i++)
                 {
                     var bone = entity.Bones[i];
@@ -117,9 +119,12 @@ namespace cs2.GameOverlay.UI.Controls
 
                 entity.Origin = new Vector3(X + entity.Origin.X, Y + entity.Origin.Y, 0);
                 entity.HeadPos = entity.Bones[0].pos;
+
+                X -= Width / 2 - w / 2;
             }
         }
 
+        private const int w = 216, h = 408;
         public Entity entity;
     }
 }

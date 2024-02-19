@@ -25,6 +25,7 @@ namespace cs2.GameOverlay
     {
         public Overlay()
         {
+            Current = this;
             Graphics g = new Graphics()
             {
                 MeasureFPS = true,
@@ -52,7 +53,7 @@ namespace cs2.GameOverlay
             GlobalVars.Update();
             Program.Entities.Clear();
             LocalPlayer.Current.Update();
-            for (int i = 0; i < 12; i++)
+            for (int i = 0; i < Program.ENTITY_LIST_COUNT; i++)
             {
                 Entity entity = new(i);
                 entity.Update();
@@ -80,9 +81,11 @@ namespace cs2.GameOverlay
                     Input.PressKey(Input.ScanCodeShort.ESCAPE);
                     var attributes = ExtendedWindowStyle.Topmost | ExtendedWindowStyle.Transparent | ExtendedWindowStyle.Layered | ExtendedWindowStyle.NoActivate;
                     User32.SetWindowLong(Window.Handle, -20, (int)attributes);
+                    //User32.SendMessage(Memory.WindowHandle, 0x0018, IntPtr.Zero, IntPtr.Zero);
+                    //0x0007
                 }
             }
-
+            _removeForms.ForEach(x => Forms.Remove(x));
             if (drawUI)
             {
                 UIForm.FocusedFrame = false;
@@ -92,6 +95,7 @@ namespace cs2.GameOverlay
 
         private void Draw(Graphics g)
         {
+            WorldEsp.Draw(g);
             WallHack.Draw(g);
             AimAssist.Draw(g);
             Crosshair.Draw(g);
@@ -102,7 +106,6 @@ namespace cs2.GameOverlay
         {
             Update();
             g.ClearScene();
-
             Draw(g);
 
             if (drawUI)
@@ -116,6 +119,7 @@ namespace cs2.GameOverlay
 
         private void Window_SetupGraphics(object? sender, SetupGraphicsEventArgs e)
         {
+            ScreenSize = new Vec2i(e.Graphics.Width, e.Graphics.Height);
             Program.Log($"Window_SetupGraphics {e.Graphics.Width}, {e.Graphics.Height}");
             Brushes.Initialize(e.Graphics);
             Fonts.Initialize(e.Graphics);
@@ -138,16 +142,50 @@ namespace cs2.GameOverlay
         private void InitializeForms(Graphics g)
         {
             UIControl.initGraphics = g;
-            UIForm f = new FormVisuals();
+
+            UIForm formAim = new FormAimAssist(ScreenSize.x - 200);
+
+            UIForm formVisuals = new FormVisuals(300);
+            UIForm formMisc = new FormMisc((int)formVisuals.Rect.Right + 10);
+            UIForm formConfig = new FormConfig((int)formMisc.Rect.Right + 10);
             Forms = new List<UIForm>()
             {
                 new FormSpectators(),
                 new FormRadar(),
-                f,
-                new FormAimAssist((int)f.Rect.Right + 10)
+                formVisuals,
+                formMisc,
+                formConfig,
+                formAim,
             };
 
             UIControl.initGraphics = null;
+        }
+
+        public void ApplyConfiguration()
+        {
+            foreach (var form in Forms)
+            {
+                form.ApplyConfig();
+            }
+        }
+
+        public void FormFocusChanged()
+        {
+            foreach (var form in Forms)
+            {
+                form.FocusChanged();
+            }
+        }
+
+        public void Open(UIForm form)
+        {
+            Forms.Add(form);
+            form.Focus();
+        }
+
+        public void RemoveForm(UIForm form)
+        {
+            _removeForms.Add(form);
         }
 
         #endregion
@@ -177,12 +215,24 @@ namespace cs2.GameOverlay
 
         #endregion
 
+        public static Overlay Current { get; private set; } = null!;
+
         public GraphicsWindow Window
         {
             get; private set;
         }
 
         public List<UIForm> Forms
+        {
+            get; private set;
+        } = null!;
+
+        private List<UIForm> _removeForms
+        {
+            get; set;
+        } = new List<UIForm>();
+
+        public static Vec2i ScreenSize
         {
             get; private set;
         }

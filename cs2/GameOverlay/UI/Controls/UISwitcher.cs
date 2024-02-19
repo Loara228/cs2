@@ -13,7 +13,7 @@ namespace cs2.GameOverlay.UI.Controls
         {
             BrushBackground = Brushes.Black;
             this.Text = text;
-            Rectangle bounds = initGraphics!.GetTextRect(Font, Text, X, Y);
+            Rectangle bounds = initGraphics!.GetTextRect(Font, Text, out _,  X, Y);
             Width = (int)bounds.Width + TEXT_OFFSET + SWITCHER_W;
             Height = SWITCHER_H;
             OnSwitched = onSwitched;
@@ -39,7 +39,8 @@ namespace cs2.GameOverlay.UI.Controls
                                           _switcherRect.Left + SwitcherRaduis + 3;
             Circle circle = new Circle(circlePoint, _switcherRect.Top + SwitcherRaduis + 2, SwitcherRaduis);
             g.FillCircle(Checked ? Brushes.UIActiveColor : Brushes.UIActiveColorSecond, circle);
-            g.DrawText(Font, TextColor, X + SWITCHER_W + TEXT_OFFSET, Y, Text);
+            Rectangle bounds = g.GetTextRect(Font, Text, out float num, X, Y);
+            g.DrawText(Font, TextColor, X + SWITCHER_W + TEXT_OFFSET, Y + Height / 2 - bounds.Height / 2 + num, Text);
         }
 
         public Font Font
@@ -82,7 +83,7 @@ namespace cs2.GameOverlay.UI.Controls
             get; set;
         }
 
-        private Rectangle _switcherRect;
+        protected Rectangle _switcherRect;
         private bool _checked;
 
         private const int SWITCHER_W = 45, SWITCHER_H = 18, TEXT_OFFSET = 5;

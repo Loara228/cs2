@@ -44,7 +44,8 @@ namespace cs2.GameOverlay.UI.Controls
 
             if (Input.MouseLeft.state == Input.KeyState.PRESSED)
             {
-                if (new Rectangle(Rect.Left, Rect.Top - _circle.Radius, Rect.Right, Rect.Bottom + _circle.Radius).IsMouseOn())
+                if (new Rectangle(Rect.Left, Rect.Top - _circle.Radius, Rect.Right, Rect.Bottom + _circle.Radius).IsMouseOn() ||
+                    _circle.IsMouseOn())
                 {
                     _dragging = true;
                 }
@@ -68,7 +69,7 @@ namespace cs2.GameOverlay.UI.Controls
             Value = (mouseX - Rect.Left) / Width * MaxValue;
         }
 
-        private void UpdateCirclePos()
+        protected void UpdateCirclePos()
         {
             float mouseX = Width / MaxValue * Value;
             _circle.Location = new Point(X + mouseX, Y + Height / 2);
@@ -86,10 +87,10 @@ namespace cs2.GameOverlay.UI.Controls
 
         public float MaxValue { get; set; } = 100f;
 
-        public Action<float> onValueChanged;
+        public Action<float> onValueChanged = null!;
 
-        private Circle _circle;
+        protected Circle _circle;
         private float _value;
-        private bool _dragging;
+        protected bool _dragging;
     }
 }

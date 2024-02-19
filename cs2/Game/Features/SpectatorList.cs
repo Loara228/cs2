@@ -22,7 +22,7 @@ namespace cs2.Game.Features
             List<string> spectators = new List<string>();
             foreach (var entity in Program.Entities)
             {
-                if (entity.AddressBase == 0 || entity.IsAlive() || entity.Team != LocalPlayer.Current.Team)
+                if (entity.AddressBase == 0 || entity.IsAlive() /*|| entity.Team != LocalPlayer.Current.Team*/)
                     continue;
 
                 IntPtr obs = Memory.Read<IntPtr>(entity.AddressBase + C_BasePlayerPawn.m_pObserverServices);
