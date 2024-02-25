@@ -1,4 +1,5 @@
-﻿using cs2.Game.Objects;
+﻿using cs2.Config;
+using cs2.Game.Objects;
 using cs2.Game.Structs;
 using SharpDX;
 using System;
@@ -30,7 +31,7 @@ namespace cs2.Game.Features
 
             if (entityTeam == Team.CounterTerrorist || entityTeam == Team.Terrorist)
             {
-                if (Configuration.Current.DM_Mode_Enabled ? true : entityTeam != LocalPlayer.Current.Team)
+                if (Config.Configuration.Current.DM_Mode_Enabled ? true : entityTeam != LocalPlayer.Current.Team)
                     Shot();
             }
         }
@@ -39,11 +40,13 @@ namespace cs2.Game.Features
         {
             Input.MouseClick();
             AimAssist.Waiting = true;
-            Thread.Sleep(150);
+            Thread.Sleep(50);
             AimAssist.Waiting = false;
             //AimAssist._targetBone = Bone.UNKNOWN;
             //AimAssist._targetPos = System.Numerics.Vector3.Zero;
             //AimAssist._targetPtr = IntPtr.Zero;
         }
     }
+//(byte) m_nHitboxSet = CSkeletonInstance->m_nHitboxSet
+//https://www.unknowncheats.me/forum/counter-strike-2-a/612049-vector-rotate-transform-hitbox.html
 }

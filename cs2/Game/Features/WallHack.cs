@@ -1,4 +1,5 @@
-﻿using cs2.Game.Objects;
+﻿using cs2.Config;
+using cs2.Game.Objects;
 using cs2.Game.Structs;
 using cs2.GameOverlay;
 using cs2.Offsets;
@@ -90,8 +91,6 @@ namespace cs2.Game.Features
                 g.DrawText(Fonts.WeaponIcons, Configuration.Current.ESP_Weapon_Font_Size + 8f, Brushes.Share, rect.Left + (rect.Width / 2) - (weaponIconRect.Width / 2) + num, rect.Bottom + (weaponIconRect.Height / 2) + 5, weaponIcon);
             }
 
-            AAA(rect, entity, g);
-
             //if (Configuration.Current.ESP_Alerts)
             //{
             //    string alerts = "";
@@ -116,6 +115,8 @@ namespace cs2.Game.Features
         private static void DrawFlashState(Graphics g, Entity entity, Rectangle rect, bool preview = false)
         {
             if (entity.FlashDuration == 0 || !Configuration.Current.ESP_Flash)
+                return;
+            if (entity.FlashTimer == 0)
                 return;
             float perc = preview ? 75 : entity.FlashTimer / 5f * 100f;
             const int h = 4, offset = 5;
@@ -176,22 +177,6 @@ namespace cs2.Game.Features
                 g.DrawLineWorld(brush, stroke, preview, entity.Bones[15].pos, entity.Bones[16].pos);
             }
         }
-
-        private static void AAA(Rectangle rect, Entity e, Graphics g)
-        {
-            IntPtr CCSPlayer_BulletServices = Memory.Read<IntPtr>(LocalPlayer.Current.AddressBase + OffsetsLoader.C_CSPlayerPawn.m_pBulletServices);
-            int hits = Memory.Read<int>(CCSPlayer_BulletServices + 0x40);
-            if (hits != lastHitsPoPerhoti)
-            {
-                if (hits != 0)
-                {
-
-                }
-                lastHitsPoPerhoti = hits;
-            }
-        }
-
-        private static int lastHitsPoPerhoti = 0;
 
         public static bool Scoped
         {

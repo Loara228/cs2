@@ -16,8 +16,8 @@ namespace cs2.Game.Features
     {
         public static List<string> Get()
         {
-            if (!LocalPlayer.Current.IsAlive())
-                return new List<string>() { "empty" };
+            //if (!LocalPlayer.Current.IsAlive())
+            //    return new List<string>() { " " };
 
             List<string> spectators = new List<string>();
             foreach (var entity in Program.Entities)

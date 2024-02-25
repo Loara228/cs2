@@ -1,4 +1,5 @@
-﻿using cs2.Game.Features;
+﻿using cs2.Config;
+using cs2.Game.Features;
 using cs2.Game.Structs;
 using cs2.GameOverlay;
 using cs2.Offsets;
@@ -97,7 +98,7 @@ namespace cs2.Game.Objects
             if (!CheckTeam())
                 return;
             IntPtr gameSceneNode = Memory.Read<IntPtr>(AddressBase + C_BaseEntity.m_pGameSceneNode);
-            IntPtr boneArray = Memory.Read<IntPtr>(gameSceneNode + 0x160 + 128);
+            IntPtr boneArray = Memory.Read<IntPtr>(gameSceneNode + 0x160 + 0x80); // CSkeletonInstance, 128
 
 
             var bone = Bones[0];

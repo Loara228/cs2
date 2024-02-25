@@ -112,6 +112,52 @@ namespace cs2.Game.Objects
                 WeaponIndex == WeaponDefIndex.G3Sg1;
         }
 
+		public bool IsRifle
+		{
+			get => WeaponIndex == WeaponDefIndex.Ak47 ||
+				WeaponIndex == WeaponDefIndex.M4A1 ||
+				WeaponIndex == WeaponDefIndex.M4A1Silencer ||
+				WeaponIndex == WeaponDefIndex.Aug ||
+				WeaponIndex == WeaponDefIndex.Sg556 ||
+				WeaponIndex == WeaponDefIndex.Famas ||
+				WeaponIndex == WeaponDefIndex.Galilar;
+		}
+
+		public bool IsSMG
+		{
+			get => WeaponIndex == WeaponDefIndex.Mac10 ||
+				WeaponIndex == WeaponDefIndex.Mp5 ||
+				WeaponIndex == WeaponDefIndex.Mp7 ||
+				WeaponIndex == WeaponDefIndex.Mp9 ||
+				WeaponIndex == WeaponDefIndex.P90 ||
+				WeaponIndex == WeaponDefIndex.Bizon ||
+                WeaponIndex == WeaponDefIndex.Negev ||
+                WeaponIndex == WeaponDefIndex.M249 ||
+                WeaponIndex == WeaponDefIndex.Ump45;
+        }
+
+        public bool IsShotgun
+        {
+			get => WeaponIndex == WeaponDefIndex.Sawedoff ||
+				WeaponIndex == WeaponDefIndex.Nova ||
+				WeaponIndex == WeaponDefIndex.Mag7 ||
+				WeaponIndex == WeaponDefIndex.Xm1014;
+        }
+
+        public bool IsPistol
+        {
+            get => WeaponIndex == WeaponDefIndex.Cz75A ||
+                WeaponIndex == WeaponDefIndex.Deagle ||
+                WeaponIndex == WeaponDefIndex.Elite ||
+                WeaponIndex == WeaponDefIndex.Fiveseven ||
+                WeaponIndex == WeaponDefIndex.Glock ||
+                WeaponIndex == WeaponDefIndex.Hkp2000 ||
+                WeaponIndex == WeaponDefIndex.P250 ||
+                WeaponIndex == WeaponDefIndex.Revolver ||
+                WeaponIndex == WeaponDefIndex.Tec9 ||
+                WeaponIndex == WeaponDefIndex.UspSilencer;
+        }
+
         public WeaponDefIndex WeaponIndex { get; set; }
         public IntPtr WeaponPtr { get; protected set; }
 		public string Name { get; set; }

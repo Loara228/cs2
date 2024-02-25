@@ -1,4 +1,5 @@
-﻿using cs2.Game.Features;
+﻿using cs2.Config;
+using cs2.Game.Features;
 using cs2.Game.Objects;
 using cs2.GameOverlay.UI.Controls;
 using GameOverlay.Drawing;

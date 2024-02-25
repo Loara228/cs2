@@ -1,5 +1,6 @@
 ﻿#pragma warning disable 
 
+using cs2.Config;
 using cs2.Game.Features;
 using cs2.GameOverlay.UI.Controls;
 using GameOverlay.Drawing;

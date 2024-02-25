@@ -1,17 +1,10 @@
-﻿using cs2.Game.Objects;
+﻿using cs2.Config;
+using cs2.Game.Objects;
 using cs2.Game.Structs;
 using cs2.GameOverlay;
-using cs2.Offsets;
 using GameOverlay.Drawing;
-using SharpDX.Direct2D1;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using static cs2.Offsets.OffsetsLoader;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace cs2.Game.Features
 {
@@ -39,49 +32,52 @@ namespace cs2.Game.Features
 
         private static void Update()
         {
+            if (LocalPlayer.Current.Weapon.IsPistol)
+                CurrentWeaponConfig = Configuration.Current.Pistols;
+            else if (LocalPlayer.Current.Weapon.IsSMG)
+                CurrentWeaponConfig = Configuration.Current.SMGs;
+            else if (LocalPlayer.Current.Weapon.IsShotgun)
+                CurrentWeaponConfig = Configuration.Current.Shotguns;
+            else if (LocalPlayer.Current.Weapon.IsRifle)
+                CurrentWeaponConfig = Configuration.Current.Rifles;
+            else if (LocalPlayer.Current.Weapon.IsSniperRifle)
+                CurrentWeaponConfig = Configuration.Current.SniperRifles;
+            else
+                return;
+
             vkBindXBtn.Update();
 
-            if (!Configuration.Current.EnableAimAssist)
+            if (!CurrentWeaponConfig.EnableAimAssist)
             {
                 Thread.Sleep(100);
                 return;
             }
 
-            if (Configuration.Current.EnableAimAssist)
-                UpdateAim();
+            UpdateAim();
         }
 
         public static void Draw(Graphics g)
         {
-            if (!Configuration.Current.EnableAimAssist)
+            if (!CurrentWeaponConfig.EnableAimAssist)
                 return;
             if (Waiting)
                 return;
 
             _screenCenter = new Vector2(g.Width / 2 - 0.5f, g.Height / 2 - 0.5f);
+
+            Brushes.FOVColor.Color = _targetPtr == IntPtr.Zero ? new Color(255, 0, 0, 100) : new Color(0, 255, 0, 100);
             g.DrawCircle(Brushes.FOVColor, _screenCenter.X, _screenCenter.Y, FOVRadius, 1);
-            if (_targetPos2D != Vector2.Zero)
+            if (_targetPos != Vector3.Zero)
             {
-                if (_targetPtr == IntPtr.Zero)
-                {
-                    if (_targetPos2D != Vector2.Zero)
-                    {
-                        g.FillCircle(Brushes.Red, _targetPos2D.X, _targetPos2D.Y, 2);
-                        _targetPos2D = Vector2.Zero;
-                    }
-                }
-                else if (_targetPos != Vector3.Zero)
-                {
-                    var pos = _targetPos.ToScreenPos();
-                    if (pos.IsValidScreen())
-                        g.FillCircle(Brushes.Red, pos.X, pos.Y, 4);
-                }
+                var pos = _targetPos.ToScreenPos();
+                if (pos.IsValidScreen())
+                    g.FillCircle(Brushes.Red, pos.X, pos.Y, 4);
             }
         }
 
         private static void UpdateTB()
         {
-            if (!Configuration.Current.EnableTriggerbot)
+            if (!CurrentWeaponConfig.EnableTriggerbot)
             {
                 Thread.Sleep(1000);
                 return;
@@ -91,27 +87,17 @@ namespace cs2.Game.Features
 
         private static void Aim(Entity entity)
         {
-            //if (_targetPtr == IntPtr.Zero)
-            //    return;
-            //Vector3 angleRCS = Vector3.Zero;
-            //if (ShotsFired > 1)
-            //{
-            //    // RCS
-            //    angleRCS = AimPunchAngle * 2;
-            //}
+            if (_targetPtr == IntPtr.Zero)
+            {
+                return;
+            }
 
-            //Vector3 angle = CalcAngle(EyePosition, _targetPos + angleRCS + (entity.Velocity / 15f), ViewAngles);
+            Vector3 velocity = CurrentWeaponConfig.VelocityPrediction ? entity.Velocity / 20f : Vector3.Zero;
 
-            //double absX = Math.Abs(angle.X);
-            //double absY = Math.Abs(angle.Y);
-            //if (absX > 50 || absY > 50)
-            //    return;
-
-            //int xMove = -(int)(angle.Y * Configuration.Current.AimAssistMult);
-            //int yMove = (int)(angle.X * Configuration.Current.AimAssistMult);
-
-
-            //Input.MouseMove(xMove, yMove);
+            GetAimAngles(_targetPos + velocity, out Vector2 aimAngles);
+            GetAimPixels(aimAngles *= 1 / (CurrentWeaponConfig.Smoothing + 1), out var aimPixels);
+            if (TryMouseMove(aimPixels))
+                Thread.Sleep(1);
         }
 
         private static void UpdateAim()
@@ -130,17 +116,21 @@ namespace cs2.Game.Features
                 _entities.Add(entity);
             }
 
-            if ((vkBindXBtn.state == Input.KeyState.DOWN || ShotsFired > 1) && _targetPtr == IntPtr.Zero)
+            if ((vkBindXBtn.state == Input.KeyState.DOWN) && _targetPtr == IntPtr.Zero)
                 FindTarget();
-            //else if (vkBindXBtn.state == Input.KeyState.NONE)
-            //    FindTarget(true);
+            else if (vkBindXBtn.state == Input.KeyState.NONE)
+            {
+                _targetPos = Vector3.Zero;
+                _targetPtr = IntPtr.Zero;
+                _targetBone = Bone.UNKNOWN;
+            }
             else if (vkBindXBtn.state == Input.KeyState.RELEASE)
             {
                 _targetPos = Vector3.Zero;
                 _targetPtr = IntPtr.Zero;
                 _targetBone = Bone.UNKNOWN;
             }
-            if (vkBindXBtn.state == Input.KeyState.DOWN || ShotsFired > 1)
+            if (vkBindXBtn.state == Input.KeyState.DOWN)
             {
                 if (_targetPtr == IntPtr.Zero)
                     return;
@@ -231,11 +221,29 @@ namespace cs2.Game.Features
             EyePosition = Origin + ViewOffset;
             ViewAngles = Memory.Read<Vector3>(Memory.ClientPtr + ClientOffsets.dwViewAngles);
             AimPunchAngle = Memory.Read<Vector3>(AddressBase + C_CSPlayerPawn.m_aimPunchAngle);
+            if (!CurrentWeaponConfig.RCS)
+                AimPunchAngle = Vector3.Zero;
             AimDirection = GetAimDirection(ViewAngles, AimPunchAngle);
             ShotsFired = Memory.Read<int>(AddressBase + C_CSPlayerPawnBase.m_iShotsFired);
+            IntPtr pCameraServices = Memory.Read<IntPtr>(AddressBase + C_BasePlayerPawn.m_pCameraServices);
+            EyeDirection = GetVectorFromEulerAngles(ViewAngles.X.DegreeToRadian(), ViewAngles.Y.DegreeToRadian());
+            PlayerFov = Memory.Read<int>(pCameraServices + 0x210);
+            if (PlayerFov == 0)
+                PlayerFov = 90;
+
         }
 
         #region Calc
+
+        private static Vector3 GetVectorFromEulerAngles(double phi, double theta)
+        {
+            return new Vector3
+            (
+                (float)(System.Math.Cos(phi) * System.Math.Cos(theta)),
+                (float)(System.Math.Cos(phi) * System.Math.Sin(theta)),
+                (float)-System.Math.Sin(phi)
+            ).Normalized();
+        }
 
         private static Vector3 GetAimDirection(Vector3 viewAngles, Vector3 aimPunchAngle)
         {
@@ -250,9 +258,94 @@ namespace cs2.Game.Features
             ));
         }
 
+        private static void GetAimPixels(Vector2 aimAngles, out Point aimPixels)
+        {
+            var fovRatio = 90.0 / PlayerFov;
+            aimPixels = new Point
+            (
+                (int)Math.Round(aimAngles.X / AnglePerPixel * fovRatio),
+                (int)Math.Round(aimAngles.Y / AnglePerPixel * fovRatio)
+            );
+        }
+        private static bool TryMouseMove(Point aimPixels)
+        {
+            if (CurrentWeaponConfig.ShotsFired > ShotsFired)
+                return false;
+            if (aimPixels.X == 0 && aimPixels.Y == 0)
+            {
+                return false;
+            }
+
+            Input.MouseMove((int)aimPixels.X, (int)aimPixels.Y);
+            return true;
+        }
+
+        private static void GetAimAngles(Vector3 pointWorld, out Vector2 aimAngles)
+        {
+            var aimDirection = AimDirection;
+            var aimDirectionDesired = (pointWorld - EyePosition).Normalized();
+            aimAngles = new Vector2
+            (
+                aimDirectionDesired.AngleToSigned(aimDirection, new Vector3(0, 0, 1)),
+                aimDirectionDesired.AngleToSigned(aimDirection, aimDirectionDesired.Cross(new Vector3(0, 0, 1)).Normalized())
+            );
+        }
+
         #endregion
 
-        #region Properties
+        #endregion
+
+        public static void Calibrate()
+        {
+            Thread.Sleep(1000);
+            Console.Beep();
+            Thread.Sleep(1000);
+            Console.Beep();
+            Thread.Sleep(1000);
+            Console.Beep(700, 600);
+            var AnglePerPixel = new[]
+            {
+                CalibrationMeasureAnglePerPixel(100),
+                CalibrationMeasureAnglePerPixel(-200),
+                CalibrationMeasureAnglePerPixel(300),
+                CalibrationMeasureAnglePerPixel(-400),
+                CalibrationMeasureAnglePerPixel(200),
+            }.Average();
+            Console.Beep();
+            Console.WriteLine($"{nameof(AnglePerPixel)} = {AnglePerPixel}");
+        }
+
+        private static double CalibrationMeasureAnglePerPixel(int deltaPixels)
+        {
+            // measure starting angle
+            Thread.Sleep(100);
+            var eyeDirectionStart = EyeDirection;
+            eyeDirectionStart.Z = 0;
+
+            // rotate
+            Input.MouseMove(deltaPixels, 0);
+
+            // measure end angle
+            Thread.Sleep(100);
+            var eyeDirectionEnd = EyeDirection;
+            eyeDirectionEnd.Z = 0;
+
+            // get angle and divide by number of pixels
+            return eyeDirectionEnd.AngleTo(eyeDirectionStart) / Math.Abs(deltaPixels);
+        }
+
+        public static bool Waiting
+        {
+            get; set;
+        } = false;
+
+        private static float FOVRadius
+        {
+            get
+            {
+                return LocalPlayer.Current.IsScoped ? 450 : CurrentWeaponConfig.FOV + 10;
+            }
+        }
 
         private static Vector3 Origin { get; set; }
         private static Vector3 ViewOffset { get; set; }
@@ -262,27 +355,16 @@ namespace cs2.Game.Features
         public static Vector3 AimDirection { get; private set; }
         public static int ShotsFired { get; private set; }
 
-        #endregion
+        private static WeaponConfig CurrentWeaponConfig { get; set; } = Configuration.Current.Pistols;
 
-        #endregion
+        public static double AnglePerPixel { get; set; } = 0.0007679434260353446;
+        private static Vector3 EyeDirection { get; set; }
 
-        public static bool Waiting
-        {
-            get; set;
-        } = false;
-
-        public static float FOVRadius
-        {
-            get
-            {
-                return LocalPlayer.Current.IsScoped ? 450 : Configuration.Current.FOV_Radius;
-            }
-        }
+        public static int PlayerFov { get; set; }
 
         private static List<Entity> _entities = new List<Entity>();
 
-        public static Input.Key vkBindXBtn = new Input.Key(6);
-        //public static Input.Key vkBindLBtn = new Input.Key(1);
+        public static Input.Key vkBindXBtn = new Input.Key(6); //6 xbtn
 
         internal static IntPtr _targetPtr = IntPtr.Zero;
         internal static Vector3 _targetPos = Vector3.Zero;

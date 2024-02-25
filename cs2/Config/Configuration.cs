@@ -1,5 +1,6 @@
 ﻿using cs2.GameOverlay.UI.Controls;
 using GameOverlay.Drawing;
+using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace cs2
+namespace cs2.Config
 {
     [Serializable]
     public class Configuration
@@ -59,6 +60,21 @@ namespace cs2
             return true;
         }
 
+        public WeaponConfig GetWeaponFromType(WeaponConfigType type)
+        {
+            if (type == WeaponConfigType.PISTOL)
+                return Pistols;
+            else if (type == WeaponConfigType.SMG)
+                return SMGs;
+            else if (type == WeaponConfigType.RIFLE)
+                return Rifles;
+            else if (type == WeaponConfigType.SNIPER_RIFLE)
+                return SniperRifles;
+            else if (type == WeaponConfigType.SHOTGUN)
+                return Shotguns;
+            throw new NotImplementedException($"Config.GetWeaponFromType({type})");
+        }
+
         #region UI
 
         public Vec2i FormRadarPos { get; set; } = new Vec2i(15, -2);
@@ -101,10 +117,11 @@ namespace cs2
 
         #region AimAssist
 
-        public float FOV_Radius { get; set; } = 80;
-        public bool EnableAimAssist { get; set; }
-        public bool EnableTriggerbot { get; set; }
-        public float AimAssistMult { get; set; } = 10;
+        public WeaponConfig Pistols { get; set; } = new WeaponConfig(WeaponConfigType.PISTOL);
+        public WeaponConfig SMGs { get; set; } = new WeaponConfig(WeaponConfigType.SMG);
+        public WeaponConfig Rifles { get; set; } = new WeaponConfig(WeaponConfigType.RIFLE);
+        public WeaponConfig SniperRifles { get; set; } = new WeaponConfig(WeaponConfigType.SNIPER_RIFLE);
+        public WeaponConfig Shotguns { get; set; } = new WeaponConfig(WeaponConfigType.SHOTGUN);
 
         #endregion
 
@@ -112,26 +129,13 @@ namespace cs2
 
         public bool Misc_Crosshair { get; set; }
         public bool Misc_Scoreboard { get; set; }
+        public bool DM_Mode_Enabled { get; set; }
+        public bool HitMarker { get; set; }
+        public bool Bhop { get; set; }
 
         #endregion
 
-        public bool DM_Mode_Enabled { get; set; }
-
         private static readonly string _path = Path.Combine(Directory.GetCurrentDirectory(), "cfg.xml");
         internal static Configuration Current { get; set; } = new Configuration();
-    }
-
-    [Serializable]
-    public struct Vec2i
-    {
-        public Vec2i() { }
-
-        public Vec2i(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        public int x, y;
     }
 }

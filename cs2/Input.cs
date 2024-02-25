@@ -64,6 +64,30 @@ namespace cs2
             SendInput(1, inputs.ToArray(), INPUT.Size);
         }
 
+        public static void MouseLeftDown()
+        {
+            List<INPUT> inputs = new List<INPUT>();
+            INPUT input = new INPUT();
+
+            input.type = 0;
+            input.U.mi.dwFlags = MOUSEEVENTF.LEFTDOWN;
+            inputs.Add(input);
+
+            SendInput(1, inputs.ToArray(), INPUT.Size);
+        }
+
+        public static void MouseLeftUp()
+        {
+            List<INPUT> inputs = new List<INPUT>();
+            INPUT input = new INPUT();
+
+            input.type = 0;
+            input.U.mi.dwFlags = MOUSEEVENTF.LEFTUP;
+            inputs.Add(input);
+
+            SendInput(1, inputs.ToArray(), INPUT.Size);
+        }
+
         public static void MouseClick()
         {
             List<INPUT> inputs = new List<INPUT>();

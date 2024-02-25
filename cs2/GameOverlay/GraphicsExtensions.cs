@@ -1,4 +1,5 @@
 ﻿using cs2.Game.Objects;
+using cs2.Game.Structs;
 using GameOverlay.Drawing;
 using SharpDX.DirectWrite;
 using SharpDX.Mathematics.Interop;
@@ -122,6 +123,69 @@ namespace cs2.GameOverlay
         public static double RadianToDegree(this double radian)
         {
             return radian * _180_Over_PI;
+        }
+
+        public static float AngleTo(this Vector3 vector, Vector3 other)
+        {
+            return (float)System.Math.Acos(vector.Normalized().Dot(other.Normalized()));
+        }
+        public static Vector3 Cross(this Vector3 left, Vector3 right)
+        {
+            return Vector3.Cross(left, right);
+        }
+
+        /// <inheritdoc cref="Vector3.Dot"/>
+        public static float Dot(this Vector3 left, Vector3 right)
+        {
+            return Vector3.Dot(left, right);
+        }
+        public static Vector3 Normalized(this Vector3 value)
+        {
+            return Vector3.Normalize(value);
+        }
+
+        public static float AngleToSigned(this Vector3 vector, Vector3 other, Vector3 about)
+        {
+            // validate
+            if (vector.IsParallelTo(about, 1E-9f))
+            {
+                throw new ArgumentException($"'{nameof(vector)}' is parallel to '{nameof(about)}'.");
+            }
+            if (other.IsParallelTo(about, 1E-9f))
+            {
+                throw new ArgumentException($"'{nameof(other)}' is parallel to '{nameof(about)}'.");
+            }
+
+            // project vectors on a plane
+            var plane = new Plane3D(about, new Vector3());
+            var vectorOnPlane = plane.ProjectVector(vector).vector.Normalized();
+            var otherOnPlane = plane.ProjectVector(other).vector.Normalized();
+
+            // get angle
+            var sign = vectorOnPlane.Cross(otherOnPlane).Normalized().Dot(plane.Normal);
+            return AngleBetweenUnitVectors(vectorOnPlane, otherOnPlane) * sign;
+        }
+
+        public static bool IsParallelTo(this Vector3 vector, Vector3 other, float tolerance = 1E-6f)
+        {
+            return System.Math.Abs(1.0 - System.Math.Abs(vector.Normalized().Dot(other.Normalized()))) <= tolerance;
+        }
+
+        public static float AngleBetweenUnitVectors(Vector3 leftNormalized, Vector3 rightNormalized)
+        {
+            return AcosClamped(leftNormalized.Dot(rightNormalized));
+        }
+        public static float AcosClamped(float value, float tolerance = 1E-6f)
+        {
+            if (value > 1 - tolerance)
+            {
+                return 0;
+            }
+            if (value < tolerance - 1)
+            {
+                return (float)System.Math.PI;
+            }
+            return (float)System.Math.Acos(value);
         }
     }
 }

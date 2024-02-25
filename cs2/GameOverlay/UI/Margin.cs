@@ -24,6 +24,8 @@ namespace cs2.GameOverlay.UI
             Right = right;
         }
 
+        public static implicit operator Margin(int i) => new Margin(i);
+
         public int Left, Top, Bottom, Right;
     }
 }

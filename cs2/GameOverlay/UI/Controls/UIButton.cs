@@ -68,8 +68,8 @@ namespace cs2.GameOverlay.UI.Controls
         {
             base.Draw(g);
 
-            Rectangle rectText = g.GetTextRect(Font, Text, out float num);
-            g.DrawText(Font, TextColor, new Point(this.X + this.Width / 2 - rectText.Width / 2 + num, this.Y + this.Height / 2 - rectText.Height / 2 + num), Text);
+            Rectangle rectText = g.GetTextRect(Font, FontSize, Text, out float num);
+            g.DrawText(Font, FontSize, TextColor, new Point(this.X + this.Width / 2 - rectText.Width / 2 + num, this.Y + this.Height / 2 - rectText.Height / 2 + num), Text);
         }
 
         public string Text
@@ -90,7 +90,7 @@ namespace cs2.GameOverlay.UI.Controls
         public float FontSize
         {
             get; set;
-        }
+        } = Fonts.Consolas.FontSize;
 
         public Action? Clicked;
     }

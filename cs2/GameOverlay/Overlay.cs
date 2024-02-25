@@ -1,4 +1,5 @@
-﻿using cs2.Game;
+﻿using cs2.Config;
+using cs2.Game;
 using cs2.Game.Features;
 using cs2.Game.Objects;
 using cs2.GameOverlay.UI;
@@ -53,6 +54,7 @@ namespace cs2.GameOverlay
             GlobalVars.Update();
             Program.Entities.Clear();
             LocalPlayer.Current.Update();
+            HitMarker.Update();
             for (int i = 0; i < Program.ENTITY_LIST_COUNT; i++)
             {
                 Entity entity = new(i);
@@ -99,6 +101,7 @@ namespace cs2.GameOverlay
             WallHack.Draw(g);
             AimAssist.Draw(g);
             Crosshair.Draw(g);
+            HitMarker.Draw(g);
             Scoreboard.Draw(g);
         }
 
@@ -143,7 +146,7 @@ namespace cs2.GameOverlay
         {
             UIControl.initGraphics = g;
 
-            UIForm formAim = new FormAimAssist(ScreenSize.x - 200);
+            UIForm formAim = new FormAimAssist(ScreenSize.x - 362);
 
             UIForm formVisuals = new FormVisuals(300);
             UIForm formMisc = new FormMisc((int)formVisuals.Rect.Right + 10);

@@ -10,43 +10,44 @@ using System.Xml.Linq;
 
 namespace cs2.Game.Features
 {
-    //internal class Bhop
-    //{
-    //    public static void Start()
-    //    {
-    //        _localPlayer = new LocalPlayer();
-    //        _key = new Input.Key(32); // space
+    internal class Bhop
+    {
+        public static void Start()
+        {
+            _localPlayer = new LocalPlayer();
+            _key = new Input.Key(32);
 
-    //        new Thread(() =>
-    //        {
-    //            for (; ; )
-    //            {
-    //                _key.Update();
-    //                Thread.Sleep(1);
-    //                Update();
-    //            }
-    //        }).Start();
-    //    }
+            new Thread(() =>
+            {
+                for (; ; )
+                {
+                    if (!Config.Configuration.Current.Bhop)
+                    {
+                        Thread.Sleep(1000);
+                        continue;
+                    }
+                    _key.Update();
+                    Update();
+                }
+            }).Start();
+        }
 
-    //    public static void Update()
-    //    {
-    //        _localPlayer.AddressBase = _localPlayer.ReadAddressBase();
-    //        int flags = Memory.Read<int>(_localPlayer.AddressBase + OffsetsLoader.C_BaseEntity.m_fFlags);
+        public static void Update()
+        {
+            _localPlayer.AddressBase = _localPlayer.ReadAddressBase();
+            int flags = Memory.Read<int>(_localPlayer.AddressBase + OffsetsLoader.C_BaseEntity.m_fFlags);
 
-    //        if (_key.state == Input.KeyState.DOWN)
-    //        {
-    //            if (flags == 65665 || flags == 65667)
-    //            {
-    //                Input.MouseMiddle();
-    //            }
-    //        }
-    //        else
-    //        {
-    //            Thread.Sleep(10);
-    //        }
-    //    }
+            if (_key.state == Input.KeyState.DOWN)
+            {
+                if (flags == 65665 || flags == 65667)
+                {
+                    Input.MouseMiddle();
+                    Thread.Sleep(5);
+                }
+            }
+        }
 
-    //    private static Input.Key _key;
-    //    private static LocalPlayer _localPlayer;
-    //}
+        private static Input.Key _key;
+        private static LocalPlayer _localPlayer;
+    }
 }

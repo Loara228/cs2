@@ -1,4 +1,5 @@
-﻿using cs2.GameOverlay.UI.Controls;
+﻿using cs2.Config;
+using cs2.GameOverlay.UI.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,8 @@ namespace cs2.GameOverlay.UI.Forms
             Add(new UILine(this));
             // ------------------------------------------------------------------------------------------------------------
             Add(_switcherSpectators = new UISwitcher("Spectators", new((x) => Configuration.Current.EnableSpectators = x)));
+            Add(_hitMarker = new UISwitcher("Hit Marker", new((x) => Configuration.Current.HitMarker = x)));
+            Add(_bhop = new UISwitcher("Bhop", new((x) => Configuration.Current.Bhop = x)));
             Add(new UILine(this));
             // ------------------------------------------------------------------------------------------------------------
             Add(_switcherDM = new UISwitcher("DM Mode", new((x) => Configuration.Current.DM_Mode_Enabled = x)));
@@ -41,6 +44,8 @@ namespace cs2.GameOverlay.UI.Forms
             _switcherRadar.Checked = Configuration.Current.EnableRadar;
             _switcherSpectators.Checked = Configuration.Current.EnableSpectators;
             _switcherDM.Checked = Configuration.Current.DM_Mode_Enabled;
+            _hitMarker.Checked = Configuration.Current.HitMarker;
+            _bhop.Checked = Configuration.Current.Bhop;
 
             _radarScale.Value = Configuration.Current.RadarScale;
             _radarEnemyScale.Value = Configuration.Current.RadarEnemyRadius;
@@ -49,6 +54,8 @@ namespace cs2.GameOverlay.UI.Forms
         private UISwitcher _switcherRadar;
         private UISwitcher _switcherSpectators;
         private UISwitcher _switcherDM;
+        private UISwitcher _hitMarker;
+        private UISwitcher _bhop;
 
         private UISlider _radarScale;
         private UISlider _radarEnemyScale;
