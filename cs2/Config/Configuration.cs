@@ -135,7 +135,7 @@ namespace cs2.Config
 
         #endregion
 
-        private static readonly string _path = Path.Combine(Directory.GetCurrentDirectory(), "cfg.xml");
+        private static readonly string _path = Path.Combine(Directory.GetCurrentDirectory(), "configs", "0.xml");
         internal static Configuration Current { get; set; } = new Configuration();
     }
 }

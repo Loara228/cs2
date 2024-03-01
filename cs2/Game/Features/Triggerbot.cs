@@ -40,7 +40,7 @@ namespace cs2.Game.Features
         {
             Input.MouseClick();
             AimAssist.Waiting = true;
-            Thread.Sleep(50);
+            Thread.Sleep(200);
             AimAssist.Waiting = false;
             //AimAssist._targetBone = Bone.UNKNOWN;
             //AimAssist._targetPos = System.Numerics.Vector3.Zero;
@@ -48,5 +48,4 @@ namespace cs2.Game.Features
         }
     }
 //(byte) m_nHitboxSet = CSkeletonInstance->m_nHitboxSet
-//https://www.unknowncheats.me/forum/counter-strike-2-a/612049-vector-rotate-transform-hitbox.html
 }

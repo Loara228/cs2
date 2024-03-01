@@ -7,19 +7,10 @@ using System.Numerics;
 using System;
 using System.Runtime.InteropServices;
 using SharpDX.XAudio2;
+using System.Text;
 
 #region notes
-//wh: aimdir on key (line steps)?
-//sound esp
-//config and offsets UI
-//dmg
-//hit sound
-//
-
-//wh toggle
-//conf form
-//controls: rowContainer, tip, msgBox
-//offsets loader from dir. (ui)
+// controls: rowContainer, tip, msgBox
 // CCollisionProperty
 // C_Inferno - molotov
 #endregion
@@ -31,6 +22,7 @@ namespace cs2
     {
         static void Main(string[] args)
         {
+            Initialize();
             ParseArguments(args);
             HitMarker.Initialize();
             Input.Initialize();
@@ -63,6 +55,28 @@ namespace cs2
                 Console.Clear();
             }).Start();
             new Overlay(); // thr join
+        }
+
+        static void Initialize()
+        {
+            Console.Title = Convert.ToBase64String(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())).Replace("0", "").Replace("L", "");
+            string currentPath = Directory.GetCurrentDirectory();
+            string soundsPath = Path.Combine(currentPath, "sounds");
+            string offsetsPath = Path.Combine(currentPath, "generated");
+            string configsPath = Path.Combine(currentPath, "configs");
+
+            void Dir(string path)
+            {
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                    Log(path, ConsoleColor.Green);
+                }
+            }
+
+            Dir(soundsPath);
+            Dir(offsetsPath);
+            Dir(configsPath);
         }
 
         static void ParseArguments(string[] args)

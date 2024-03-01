@@ -48,7 +48,7 @@ namespace cs2.Game.Features
             for (int i = 0; i < 6; i++)
             {
                 SourceVoice voice = new SourceVoice(_device, waveFormat, true);
-                voice.SetVolume(0.5f);
+                voice.SetVolume(0.6f);
                 voice.SubmitSourceBuffer(_buffer, stream.DecodedPacketsInfo);
                 voice.BufferEnd += (context) =>
                 {

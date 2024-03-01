@@ -14,18 +14,18 @@ namespace cs2.Game.Features
     {
         public static void Draw(Graphics g, Rectangle radarRect)
         {
-            if (Overlay.drawUI)
-                return;
-
             Vector2 radarCenter = new Vector2(radarRect.Left + radarRect.Width / 2, radarRect.Top + radarRect.Height / 2);
 
-            g.FillRectangle(Brushes.UIBackgroundColor2, radarRect);
-            g.DrawRectangle(Brushes.UIBackgroundColor2, radarRect, 1);
+            if (!Overlay.drawUI)
+            {
+                g.FillRectangle(Brushes.UIBackgroundColor2, radarRect);
+                g.DrawRectangle(Brushes.UIBackgroundColor2, radarRect, 1);
 
-            g.DrawLine(Brushes.UIBorderColor2, new Line(new Point(radarRect.Left, radarCenter.Y),
-                                                        new Point(radarRect.Right, radarCenter.Y)), 0.5f);
-            g.DrawLine(Brushes.UIBorderColor2, new Line(new Point(radarCenter.X, radarRect.Top),
-                                                        new Point(radarCenter.X, radarRect.Bottom)), 0.5f);
+                g.DrawLine(Brushes.UIBorderColor2, new Line(new Point(radarRect.Left, radarCenter.Y),
+                                                            new Point(radarRect.Right, radarCenter.Y)), 0.5f);
+                g.DrawLine(Brushes.UIBorderColor2, new Line(new Point(radarCenter.X, radarRect.Top),
+                                                            new Point(radarCenter.X, radarRect.Bottom)), 0.5f);
+            }
 
             foreach (Entity entity in Program.Entities)
             {

@@ -42,12 +42,12 @@ namespace cs2.Game.Features
                 if (flags == 65665 || flags == 65667)
                 {
                     Input.MouseMiddle();
-                    Thread.Sleep(5);
+                    Thread.Sleep(10);
                 }
             }
         }
 
-        private static Input.Key _key;
-        private static LocalPlayer _localPlayer;
+        private static Input.Key _key = null!;
+        private static LocalPlayer _localPlayer = null!;
     }
 }
