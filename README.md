@@ -72,10 +72,10 @@ bind mouse3 "+jump_”;
 > Эти действия повысят безопасноть<br>1. Перед компиляцией измените имя проекта<br>2. Компилируйте как нативное AOT приложение<br>3. Запускайте от имени администратора
 
 ## Запуск
-Установите <a>шрифт</a>. Запустите игру и чит.
-Если вы меняете DPI или чувствительность мыши, то откалибруйте значение "AnglePerPixel" в настройках оверлея. 
+Установите [шрифт](https://github.com/blyatArtem/cs2/tree/master/cs2/Content/obs_icons.ttf). Далее запустите CS2 и чит.
+Если вы меняете чувствительность мыши, то откалибруйте значение "AnglePerPixel" в настройках оверлея. Далее можете скомпилировать чит с вашим значением "cs2.Game.Features.AimAssist.AnglePerPixel" или запускать чит с аргументом  angle {value}.
 
 ## Кнопки
 
-<kbd>HOME</kbd> - Переключение оверлея. <a href="https://github.com/blyatArtem/cs2/blob/10b4a5e381c1ec4ff872da02e76b8fb10cd5c11c/cs2/GameOverlay/Overlay.cs#L245">Кнопка</a>.<br>
-<kbd>XButton</kbd> - Наводка и автовыстрел. <a href="https://github.com/blyatArtem/cs2/blob/10b4a5e381c1ec4ff872da02e76b8fb10cd5c11c/cs2/Game/Features/AimAssist.cs#L367">Кнопка</a>.<br>
+<kbd>HOME</kbd> - Переключение оверлея. Кнопку можно изменить <a href="https://github.com/blyatArtem/cs2/blob/10b4a5e381c1ec4ff872da02e76b8fb10cd5c11c/cs2/GameOverlay/Overlay.cs#L245">тут</a>.<br>
+<kbd>XButton</kbd> - Наводка и автовыстрел. Кнопку можно изменить <a href="https://github.com/blyatArtem/cs2/blob/10b4a5e381c1ec4ff872da02e76b8fb10cd5c11c/cs2/Game/Features/AimAssist.cs#L367">тут</a>.<br>
