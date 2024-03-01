@@ -36,16 +36,23 @@
 
 ### Создание формы
 
-```cs
-class MyForm : UIForm
-{
-	public MyForm() : base(0, 0, "Название окна")
-	{
-		Add(new UILabel("Текст"));
-            	Add(new UISwitcher("Текст", new((x) => Console.WriteLine($"Значение: ${x}"))));
-	}
-}
-```
+# Компиляция и запуск
+
+### Требования
+
++ <a href="https://visualstudio.microsoft.com/ru/">Visual Studio 2022</a>
++ <a href="https://dotnet.microsoft.com/en-us/download">.NET 8 SDK</a>
+
+### Рекомендации
+
+> [!WARNING]
+> Для повышения безопасности:
+> Перед компиляцией измените имя проекта
+> Компилируйте как нативное AOT приложение
+> Запускайте от имени администратора
+
+
+
 
 ## Bhop
 
@@ -59,24 +66,3 @@ alias -jump_ "-jump;-jump;-jump";
 bind space "+jump_";
 bind mouse3 "+jump_”;
 ```
-
-# Компиляция, запуск и использование
-
-### Требования
-
-+ <a href="https://visualstudio.microsoft.com/ru/">Visual Studio 2022</a>
-+ <a href="https://dotnet.microsoft.com/en-us/download">.NET 8 SDK</a>
-
-### Компиляция
-
-> [!NOTE]
-> Эти действия повысят безопасность<br>1. Перед компиляцией измените имя проекта<br>2. Компилируйте как нативное AOT приложение<br>3. Запускайте от имени администратора
-
-## Запуск
-Установите [шрифт](https://github.com/blyatArtem/cs2/tree/master/cs2/Content/obs_icons.ttf). Далее запустите CS2 и чит.
-Если вы меняете чувствительность мыши, то откалибруйте значение "AnglePerPixel" в настройках оверлея. Далее можете скомпилировать чит с вашим значением "cs2.Game.Features.AimAssist.AnglePerPixel" или запускать чит с аргументом  angle {value}.
-
-## Кнопки
-
-<kbd>HOME</kbd> - Переключение оверлея. Кнопку можно изменить <a href="https://github.com/blyatArtem/cs2/blob/10b4a5e381c1ec4ff872da02e76b8fb10cd5c11c/cs2/GameOverlay/Overlay.cs#L245">тут</a>.<br>
-<kbd>XButton</kbd> - Наводка и автовыстрел. Кнопку можно изменить <a href="https://github.com/blyatArtem/cs2/blob/10b4a5e381c1ec4ff872da02e76b8fb10cd5c11c/cs2/Game/Features/AimAssist.cs#L367">тут</a>.<br>
