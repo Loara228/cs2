@@ -25,6 +25,7 @@ namespace cs2.Game.Features
                 InitBuffer(file);
                 return;
             }
+            Program.Log($"Features.HitMarker.{nameof(_buffer)} is empty", ConsoleColor.Yellow);
         }
 
         private static void InitBuffer(FileInfo file)
@@ -97,7 +98,6 @@ namespace cs2.Game.Features
         {
             if (_buffer == null)
             {
-                Program.Log($"{nameof(_buffer)} is empty", ConsoleColor.Yellow);
                 return;
             }
             for (int i = 0; i < _voices.Count; i++)

@@ -27,7 +27,6 @@ namespace cs2
             HitMarker.Initialize();
             Input.Initialize();
             LocalPlayer.Initialize();
-            HitMarker.Initialize();
             if (!OffsetsLoader.Initialize(LoadType.FROM_GIT))
             {
                 Log("offsets init failed", ConsoleColor.Red);
