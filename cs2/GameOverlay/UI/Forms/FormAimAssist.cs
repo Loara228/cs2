@@ -78,6 +78,20 @@ namespace cs2.GameOverlay.UI.Forms
             sliderShotsFired.MaxValue = 3;
             sliderShotsFired.Width = Width - sliderAimMult.Margin.Left * 2;
 
+
+            Add(labelDelay = new UILabel($"Delay after shot: {SelectedWeapon.DelayAfterShot}"));
+            Add(sliderDelay = new UISlider(SelectedWeapon.DelayAfterShot));
+            sliderDelay.onValueChanged += SliderDelay;
+            sliderDelay.Value = SelectedWeapon.DelayAfterShot;
+            sliderDelay.MaxValue = 1000;
+            sliderDelay.Width = Width - sliderAimMult.Margin.Left * 2;
+
+            Add(checkboxBone1 = new UICheckbox("Head", new Action<bool>((x) => CheckboxBoneChecked(6, x))));
+            Add(checkboxBone2 = new UICheckbox("Neck", new Action<bool>((x) => CheckboxBoneChecked(5, x))));
+            Add(checkboxBone3 = new UICheckbox("Spine 1", new Action<bool>((x) => CheckboxBoneChecked(4, x))));
+            Add(checkboxBone4 = new UICheckbox("Spine 2", new Action<bool>((x) => CheckboxBoneChecked(2, x))));
+            Add(checkboxBone5 = new UICheckbox("Pelvis", new Action<bool>((x) => CheckboxBoneChecked(0, x))));
+
             UIButton btn;
             Add(btn = new UIButton("AnglePerPixel"));
             btn.Width = Width - btn.Margin.Left * 2;
@@ -93,21 +107,54 @@ namespace cs2.GameOverlay.UI.Forms
             ApplyConfig();
         }
 
+        private void CheckboxBoneChecked(int bone, bool @checked)
+        {
+            WeaponConfig weapon = Configuration.Current.GetWeaponFromType(_selectedWeaponType);
+
+            AimAssist.Hitbox hbb = (AimAssist.Hitbox)bone;
+
+            if (hbb == AimAssist.Hitbox.head)
+                bone = (int)AimAssist.HitboxBone.head;
+            else if (hbb == AimAssist.Hitbox.spine_1)
+                bone = (int)AimAssist.HitboxBone.spine_1;
+            else if (hbb == AimAssist.Hitbox.spine_2)
+                bone = (int)AimAssist.HitboxBone.spine_2;
+            else if (hbb == AimAssist.Hitbox.pelvis)
+                bone = (int)AimAssist.HitboxBone.pelvis;
+            else if (hbb == AimAssist.Hitbox.neck_0)
+                bone = (int)AimAssist.HitboxBone.neck_0;
+            else
+                throw new Exception("CheckboxBoneChecked");
+
+            if (@checked)
+                weapon.bones |= (AimAssist.HitboxBone)bone;
+            else
+                weapon.bones &= ~((AimAssist.HitboxBone)bone);
+        }
+
         public override void ApplyConfig()
         {
             WeaponConfig weapon = Configuration.Current.GetWeaponFromType(_selectedWeaponType);
 
             sliderAimMult.Value = weapon.Smoothing;
             sliderShotsFired.Value = weapon.ShotsFired;
+            sliderDelay.Value = weapon.DelayAfterShot;
 
             SliderAimMult_OnValueChanged(weapon.Smoothing);
             SliderShotsFired(weapon.ShotsFired);
+            SliderDelay(weapon.DelayAfterShot);
             sliderFov.Value = weapon.FOV;
 
             aim.Checked = weapon.EnableAimAssist;
             tb.Checked = weapon.EnableTriggerbot;
             rcs.Checked = weapon.RCS;
             velocityPrediction.Checked = weapon.VelocityPrediction;
+
+            checkboxBone1.Checked = weapon.bones.HasFlag(AimAssist.HitboxBone.head);
+            checkboxBone2.Checked = weapon.bones.HasFlag(AimAssist.HitboxBone.neck_0);
+            checkboxBone3.Checked = weapon.bones.HasFlag(AimAssist.HitboxBone.spine_1);
+            checkboxBone4.Checked = weapon.bones.HasFlag(AimAssist.HitboxBone.spine_2);
+            checkboxBone5.Checked = weapon.bones.HasFlag(AimAssist.HitboxBone.pelvis);
 
         }
 
@@ -150,6 +197,13 @@ namespace cs2.GameOverlay.UI.Forms
             Configuration.Current.GetWeaponFromType(_selectedWeaponType).ShotsFired = iValue;
         }
 
+        private void SliderDelay(float value)
+        {
+            int iValue = (int)Math.Round(value, 0);
+            labelDelay.Text = $"Delay after shot: {iValue}";
+            Configuration.Current.GetWeaponFromType(_selectedWeaponType).DelayAfterShot = iValue;
+        }
+
         public WeaponConfig SelectedWeapon
         {
             get => Configuration.Current.GetWeaponFromType(_selectedWeaponType);
@@ -159,6 +213,12 @@ namespace cs2.GameOverlay.UI.Forms
 
         UIButton btnPistols, btnSMGs, btnShotguns, btnRifles, btnSniperRifles;
 
+        UICheckbox checkboxBone1;
+        UICheckbox checkboxBone2;
+        UICheckbox checkboxBone3;
+        UICheckbox checkboxBone4;
+        UICheckbox checkboxBone5;
+
         UISwitcher aim;
         UISwitcher tb;
         UISwitcher rcs;
@@ -167,8 +227,10 @@ namespace cs2.GameOverlay.UI.Forms
         UISlider sliderFov;
         UISlider sliderAimMult;
         UISlider sliderShotsFired;
+        UISlider sliderDelay;
 
         UILabel labelSmooth;
         UILabel labelShotsFired;
+        UILabel labelDelay;
     }
 }

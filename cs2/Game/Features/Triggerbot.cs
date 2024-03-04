@@ -40,7 +40,7 @@ namespace cs2.Game.Features
         {
             Input.MouseClick();
             AimAssist.Waiting = true;
-            Thread.Sleep(200);
+            Thread.Sleep(AimAssist.CurrentWeaponConfig.DelayAfterShot);
             AimAssist.Waiting = false;
             //AimAssist._targetBone = Bone.UNKNOWN;
             //AimAssist._targetPos = System.Numerics.Vector3.Zero;

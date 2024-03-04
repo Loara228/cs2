@@ -1,4 +1,5 @@
-﻿﻿# external чит для cs2
+﻿﻿
+# external чит для cs2
 
 ![preview](cs2/Content/preview.jpg)
 
@@ -24,6 +25,10 @@
 		* Из директории
 	- Сохранение конфигурации
 + [Интерфейс](#UI)
+
+<hr>
+
+:link: **[Список обновлений](cs2/Content/Updates.md)**
 
 ## Стрельба
 

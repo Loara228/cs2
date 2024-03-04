@@ -9,7 +9,7 @@ using static cs2.PInvoke.User32;
 
 namespace cs2
 {
-    internal static class Input
+    public static class Input
     {
         public static void Initialize()
         {
@@ -424,7 +424,7 @@ namespace cs2
             OEM_CLEAR = 0xFE
         }
 
-        internal enum ScanCodeShort : short
+        public enum ScanCodeShort : short
         {
             ERROR = -1,
             LBUTTON = 0,

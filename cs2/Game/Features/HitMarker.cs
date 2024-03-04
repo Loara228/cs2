@@ -84,9 +84,19 @@ namespace cs2.Game.Features
             if (!Config.Configuration.Current.HitMarker)
                 return;
 
+            if (_hitMarkerOpacity == 0)
+                return;
+
             Brushes.Share.Color = new Color(1f, 1f, 1f, _hitMarkerOpacity);
 
-            g.DrawCrosshair(Brushes.Share, new Point(g.Width / 2, g.Height / 2), 8, 2, CrosshairStyle.Diagonal);
+            const int offset = 8, lenght = 28 - offset;
+
+            Point center = new Point(g.Width / 2 + 0.5f, g.Height / 2 + 0.5f);
+
+            g.DrawLine(Brushes.Share, center.X - offset, center.Y - offset, center.X - lenght, center.Y - lenght, 1f);
+            g.DrawLine(Brushes.Share, center.X + offset, center.Y - offset, center.X + lenght, center.Y - lenght, 1f);
+            g.DrawLine(Brushes.Share, center.X - offset, center.Y + offset, center.X - lenght, center.Y + lenght, 1f);
+            g.DrawLine(Brushes.Share, center.X + offset, center.Y + offset, center.X + lenght, center.Y + lenght, 1f);
 
             _hitMarkerOpacity -= 0.04f;
 

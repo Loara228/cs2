@@ -1,4 +1,5 @@
-﻿using System;
+﻿using cs2.Game.Features;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,7 @@ namespace cs2.Config
         #region tb
 
         public bool EnableTriggerbot { get; set; }
-        public int DelayAfterShot { get; set; } = 100;
+        public int DelayAfterShot { get; set; } = 500;
 
         #endregion
 
@@ -34,6 +35,12 @@ namespace cs2.Config
         public int ShotsFired { get; set; } = 1;
         public bool RCS { get; set; } = false;
         public bool VelocityPrediction { get; set; } = false;
+
+        public AimAssist.HitboxBone bones = AimAssist.HitboxBone.head |
+                                        AimAssist.HitboxBone.neck_0 |
+                                        AimAssist.HitboxBone.pelvis |
+                                        AimAssist.HitboxBone.spine_1 |
+                                        AimAssist.HitboxBone.spine_2;
 
         #endregion
 

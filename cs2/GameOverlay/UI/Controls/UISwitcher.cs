@@ -86,6 +86,6 @@ namespace cs2.GameOverlay.UI.Controls
         protected Rectangle _switcherRect;
         private bool _checked;
 
-        private const int SWITCHER_W = 45, SWITCHER_H = 18, TEXT_OFFSET = 5;
+        protected const int SWITCHER_W = 45, SWITCHER_H = 18, TEXT_OFFSET = 5;
     }
 }

@@ -8,8 +8,44 @@ using static cs2.Offsets.OffsetsLoader;
 
 namespace cs2.Game.Features
 {
-    internal static class AimAssist
+    public static class AimAssist
     {
+        public static void LoadValue()
+        {
+            string file = GetPath();
+            if (!File.Exists(file))
+            {
+                FileStream fs = new FileStream(file, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                fs.Close();
+                return;
+            }
+            StreamReader reader = new StreamReader(file);
+            string? valueStr = reader.ReadLine();
+            reader.Close();
+            if (string.IsNullOrEmpty(valueStr))
+                return;
+            if (float.TryParse(valueStr, out float value))
+            {
+                AnglePerPixel = value;
+                Console.WriteLine($"AnglePerPixel = {AnglePerPixel}");
+            }
+        }
+
+        public static void SaveValue()
+        {
+            string file = GetPath();
+            StreamWriter writer = new StreamWriter(file);
+            writer.WriteLine(AnglePerPixel);
+            writer.Flush();
+            writer.Close();
+        }
+
+        public static string GetPath()
+        {
+            string currentPath = Directory.GetCurrentDirectory();
+            return Path.Combine(currentPath, "configs", "ang.txt");
+        }
+
         public static void Start()
         {
             new Thread(() =>
@@ -25,7 +61,7 @@ namespace cs2.Game.Features
                 for (; ; )
                 {
                     UpdateTB();
-                    Thread.Sleep(1);
+                    //Thread.Sleep(1);
                 }
             }).Start();
         }
@@ -66,7 +102,8 @@ namespace cs2.Game.Features
             _screenCenter = new Vector2(g.Width / 2 - 0.5f, g.Height / 2 - 0.5f);
 
             Brushes.FOVColor.Color = _targetPtr == IntPtr.Zero ? new Color(255, 0, 0, 100) : new Color(0, 255, 0, 100);
-            g.DrawCircle(Brushes.FOVColor, _screenCenter.X, _screenCenter.Y, FOVRadius, 1);
+            float stroke = _targetPtr == IntPtr.Zero ? 2 : 1;
+            g.DrawCircle(Brushes.FOVColor, _screenCenter.X, _screenCenter.Y, FOVRadius, stroke);
             if (_targetPos != Vector3.Zero)
             {
                 var pos = _targetPos.ToScreenPos();
@@ -92,12 +129,11 @@ namespace cs2.Game.Features
                 return;
             }
 
-            Vector3 velocity = CurrentWeaponConfig.VelocityPrediction ? entity.Velocity / 20f : Vector3.Zero;
+            Vector3 velocity = CurrentWeaponConfig.VelocityPrediction ? entity.Velocity / 15f : Vector3.Zero;
 
             GetAimAngles(_targetPos + velocity, out Vector2 aimAngles);
             GetAimPixels(aimAngles *= 1 / (CurrentWeaponConfig.Smoothing + 1), out var aimPixels);
-            if (TryMouseMove(aimPixels))
-                Thread.Sleep(1);
+            TryMouseMove(aimPixels);
         }
 
         private static void UpdateAim()
@@ -169,6 +205,11 @@ namespace cs2.Game.Features
 
             foreach (var bone in entity.Bones)
             {
+                Enum.TryParse(bone.bone.ToString(), out AimAssist.HitboxBone hbb);
+                if (!CurrentWeaponConfig.bones.HasFlag(hbb))
+                {
+                    continue;
+                }
                 if ((int)bone.bone == (int)Hitbox.head ||
                     (int)bone.bone == (int)Hitbox.neck_0 ||
                     (int)bone.bone == (int)Hitbox.spine_1 ||
@@ -221,7 +262,7 @@ namespace cs2.Game.Features
             EyePosition = Origin + ViewOffset;
             ViewAngles = Memory.Read<Vector3>(Memory.ClientPtr + ClientOffsets.dwViewAngles);
             AimPunchAngle = Memory.Read<Vector3>(AddressBase + C_CSPlayerPawn.m_aimPunchAngle);
-            if (!CurrentWeaponConfig.RCS)
+            if (!CurrentWeaponConfig.RCS || ShotsFired == 0)
                 AimPunchAngle = Vector3.Zero;
             AimDirection = GetAimDirection(ViewAngles, AimPunchAngle);
             ShotsFired = Memory.Read<int>(AddressBase + C_CSPlayerPawnBase.m_iShotsFired);
@@ -303,7 +344,7 @@ namespace cs2.Game.Features
             Console.Beep();
             Thread.Sleep(1000);
             Console.Beep(700, 600);
-            var AnglePerPixel = new[]
+            float angle = new[]
             {
                 CalibrationMeasureAnglePerPixel(100),
                 CalibrationMeasureAnglePerPixel(-200),
@@ -312,10 +353,15 @@ namespace cs2.Game.Features
                 CalibrationMeasureAnglePerPixel(200),
             }.Average();
             Console.Beep();
-            Console.WriteLine($"{nameof(AnglePerPixel)} = {AnglePerPixel}");
+            Console.WriteLine($"AnglePerPixel = {angle}");
+            if (angle > 0)
+            {
+                AnglePerPixel = angle;
+                SaveValue();
+            }
         }
 
-        private static double CalibrationMeasureAnglePerPixel(int deltaPixels)
+        private static float CalibrationMeasureAnglePerPixel(int deltaPixels)
         {
             // measure starting angle
             Thread.Sleep(100);
@@ -355,9 +401,9 @@ namespace cs2.Game.Features
         public static Vector3 AimDirection { get; private set; }
         public static int ShotsFired { get; private set; }
 
-        private static WeaponConfig CurrentWeaponConfig { get; set; } = Configuration.Current.Pistols;
+        public static WeaponConfig CurrentWeaponConfig { get; set; } = Configuration.Current.Pistols;
 
-        public static double AnglePerPixel { get; set; } = 0.0007679434260353446;
+        public static double AnglePerPixel { get; set; } = 1;
         private static Vector3 EyeDirection { get; set; }
 
         public static int PlayerFov { get; set; }
@@ -373,13 +419,24 @@ namespace cs2.Game.Features
 
         private static Vector2 _screenCenter;
 
-        public enum Hitbox
+        [Flags]
+        public enum Hitbox : byte
         {
             head = 6,
             neck_0 = 5,
             spine_1 = 4,
             spine_2 = 2,
             pelvis = 0,
+        }
+
+        [Flags]
+        public enum HitboxBone : byte
+        {
+            head = 1,
+            neck_0 = 2,
+            spine_1 = 4,
+            spine_2 = 8,
+            pelvis = 16,
         }
     }
 }

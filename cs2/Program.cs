@@ -39,6 +39,7 @@ namespace cs2
                 Console.ReadKey();
                 Environment.Exit(0);
             }
+            AimAssist.LoadValue();
             AimAssist.Start();
             Bhop.Start();
             WorldEsp.Start();
@@ -80,16 +81,16 @@ namespace cs2
 
         static void ParseArguments(string[] args)
         {
-            List<string> arguments = new List<string>();
-            foreach (var arg in args)
-                arguments.Add(arg.ToLower());
+            //List<string> arguments = new List<string>();
+            //foreach (var arg in args)
+            //    arguments.Add(arg.ToLower());
 
-            int index = 0;
-            if ((index = arguments.IndexOf("angle")) != -1)
-            {
-                AimAssist.AnglePerPixel = double.Parse(arguments[index + 1]);
-                Program.Log($"AnglePerPixel: {AimAssist.AnglePerPixel}", ConsoleColor.Green);
-            }
+            //int index = 0;
+            //if ((index = arguments.IndexOf("angle")) != -1)
+            //{
+            //    AimAssist.AnglePerPixel = double.Parse(arguments[index + 1]);
+            //    Program.Log($"AnglePerPixel: {AimAssist.AnglePerPixel}", ConsoleColor.Green);
+            //}
         }
 
         public static void Log(string text, ConsoleColor color = ConsoleColor.Gray)
