@@ -13,4 +13,4 @@
 + Добавлен UI элемент Checkbox
 + Немного улучшена наводка
 
-![aim update](cs2/Content/aim1001.png)
+![aim update](aim1001.png)

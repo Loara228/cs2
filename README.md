@@ -28,8 +28,6 @@
 
 <hr>
 
-:link: **[Список обновлений](cs2/Content/Updates.md)**
-
 ## Стрельба
 
 ![Bhop](cs2/Content/aim.gif)
@@ -79,9 +77,11 @@ bind mouse3 "+jump_”;
 
 ## Запуск
 Установите [шрифт](https://github.com/blyatArtem/cs2/tree/master/cs2/Content/obs_icons.ttf). Далее запустите CS2 и чит.
-Если вы меняете чувствительность мыши, то откалибруйте значение "AnglePerPixel" в настройках оверлея. Далее можете скомпилировать чит с вашим значением "cs2.Game.Features.AimAssist.AnglePerPixel" или запускать чит с аргументом  angle {value}.
+Если вы меняете чувствительность мыши, то откалибруйте значение "AnglePerPixel" в настройках оверлея.
 
 ## Кнопки
 
 <kbd>HOME</kbd> - Переключение оверлея. Кнопку можно изменить <a href="https://github.com/blyatArtem/cs2/blob/10b4a5e381c1ec4ff872da02e76b8fb10cd5c11c/cs2/GameOverlay/Overlay.cs#L245">тут</a>.<br>
 <kbd>XButton</kbd> - Наводка и автовыстрел. Кнопку можно изменить <a href="https://github.com/blyatArtem/cs2/blob/10b4a5e381c1ec4ff872da02e76b8fb10cd5c11c/cs2/Game/Features/AimAssist.cs#L367">тут</a>.<br>
+
+:link: **[Список обновлений](cs2/Content/Updates.md)**
