@@ -54,7 +54,10 @@ namespace cs2.Game.Objects
         {
             if (!base.Update()) return false;
             if (LocalPlayer.Current.AddressBase == AddressBase)
+            {
+                LocalPlayer.index = Index;
                 return true;
+            }
 
             UpdateBones();
 
@@ -67,10 +70,10 @@ namespace cs2.Game.Objects
             WeaponPtr = Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_pClippingWeapon);
             Weapon.Update(WeaponPtr);
 
-            SpottedState = Memory.Read<EntitySpottedState_t>(AddressBase + C_CSPlayerPawnBase.m_entitySpottedState);
+            UpdateSpotted();
 
-            IsScoped = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsScoped) && Weapon.IsSniperRifle;
-            IsDefusing = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsDefusing);
+            //IsScoped = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsScoped) && Weapon.IsSniperRifle;
+            //IsDefusing = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsDefusing);
             TeamColor = ToTeamColor(Memory.Read<int>(ControllerBase + CCSPlayerController.m_iCompTeammateColor));
 
             float flashDuration = Memory.Read<float>(AddressBase + C_CSPlayerPawnBase.m_flFlashDuration);
@@ -117,11 +120,11 @@ namespace cs2.Game.Objects
             }
         }
 
-        public int CheckSpotted()
+        public void UpdateSpotted()
         {
-            //int value = SpottedState.GetSpotted();
-            int value = SpottedState.GetSpotted() & (1 << (int)LocalPlayer.Current.AddressBase);
-            return value;
+            ulong spottedMask = Memory.Read<ulong>(AddressBase + C_CSPlayerPawnBase.m_entitySpottedState + 0xC);
+            var s = spottedMask & ((UInt64)1 << (LocalPlayer.index - 1));
+            IsSpotted = s != 0;
         }
 
         public override bool IsAlive()
@@ -182,7 +185,6 @@ namespace cs2.Game.Objects
                 (Bone.leg_lower_R, Vector3.Zero, 26),   // 15
                 (Bone.ankle_R, Vector3.Zero, 27)        // 16
             };
-        public EntitySpottedState_t SpottedState { get; private set; }
         public int PlayerPawn { get; set; }
         public int Index { get; private set; }
         public string Nickname { get; private set; }

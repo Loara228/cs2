@@ -39,7 +39,7 @@ namespace cs2.GameOverlay.UI.Controls
             Margin = new Margin(5, 5, 0);
         }
 
-        private UILabel(string text, bool ig)
+        public UILabel(string text, bool ig)
         {
             Font = Fonts.Consolas;
             FontSize = (int)Font.FontSize;

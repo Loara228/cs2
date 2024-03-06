@@ -31,7 +31,11 @@
 ## Стрельба
 
 ![Bhop](cs2/Content/aim.gif)
+
+## Wallhack ESP
+
 ![blyat](cs2/Content/blyat.gif)
+<img src="cs2/Content/wh1002.gif" width="600" height="338"/>
 
 ## Интерфейс <a name="UI"></a>
 

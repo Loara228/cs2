@@ -48,12 +48,13 @@ namespace cs2.GameOverlay
             _fovColor = g.CreateSolidBrush(255, 255, 255, 100);
 
             _share = g.CreateSolidBrush(0, 0, 0, 255);
+            _share2 = g.CreateSolidBrush(0, 0, 0, 255);
 
         }
 
         public static void Dispose()
         {
-            _bones.Dispose();
+
         }
 
         public static SolidBrush Bones { get => _bones; }
@@ -69,6 +70,7 @@ namespace cs2.GameOverlay
         public static SolidBrush ScoreboardElementCT { get => _scoreboardElementCT; }
 
         public static SolidBrush Share { get => _share; }
+        public static SolidBrush Share2 { get => _share2; }
 
         #region TeamColor
 
@@ -141,5 +143,6 @@ namespace cs2.GameOverlay
         #endregion
 
         private static SolidBrush _share = null!;
+        private static SolidBrush _share2 = null!;
     }
 }

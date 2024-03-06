@@ -46,9 +46,6 @@ namespace cs2.Game.Objects
 
             Weapon.Update(Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_pClippingWeapon));
 
-            //IntPtr entitySpottedStatePtr = Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_entitySpottedState);
-            //SpottedState = Memory.Read<EntitySpottedState_t>(entitySpottedStatePtr);
-
             ViewAngles = Memory.Read<Vector3>(Memory.ClientPtr + ClientOffsets.dwViewAngles);
 
             IsScoped = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsScoped) && Weapon.IsSniperRifle;
@@ -61,7 +58,9 @@ namespace cs2.Game.Objects
         private Matrix MatrixViewProjection { get; set; }
         public Matrix MatrixViewport { get; private set; }
         public Matrix MatrixViewProjectionViewport { get; private set; }
-        public EntitySpottedState_t SpottedState { get; private set; }
+        public ulong SpottedMask { get; private set; }
         public bool IsScoped { get; private set; }
+
+        public static int index = -1;
     }
 }

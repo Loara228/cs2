@@ -9,12 +9,6 @@ using System.Runtime.InteropServices;
 using SharpDX.XAudio2;
 using System.Text;
 
-#region notes
-// controls: rowContainer, tip, msgBox
-// CCollisionProperty
-// C_Inferno - molotov
-#endregion
-
 namespace cs2
 {
 

@@ -49,6 +49,9 @@ namespace cs2.GameOverlay
         //    return MathF.Sqrt(((v2.X - v1.X) * (v2.X - v1.X)) + ((v2.Y - v1.Y) * (v2.Y - v1.Y)));
         //}
 
+        public static Color Invert(this Color color) =>
+            Color.FromARGB(0xffffff ^ color.ToARGB());
+
         public static Rectangle GetTextRect(this Graphics g, global::GameOverlay.Drawing.Font font, string text, out float rectOffset, float x = 1, float y = 1)
         {
             return GetTextRect(g, font, font.FontSize, text, out rectOffset, x, y);

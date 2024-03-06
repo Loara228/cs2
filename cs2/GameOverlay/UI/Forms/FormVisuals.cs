@@ -26,6 +26,8 @@ namespace cs2.GameOverlay.UI.Forms
         {
             Add(new UILabel("Rectangle") { FontSize = 16, Margin = new Margin(10, 5, 5, 5) });
             Add(_switcherBox = new UISwitcher2("Enable", Configuration.Current.ESP_Boxes_Color, new((x) => Configuration.Current.ESP_Boxes = x)));
+            Add(_labelBoxesColor2 = new UILabel2("Visible color", Configuration.Current.ESP_Boxes_Spotted_Color));
+            Add(_buttonRectType = new UIButton("Style", new Action(() => new FormVisualsDialog(this))));
             Add(new UILabel("Stroke") { FontSize = 12, Margin = new Margin(5, 0, -5, 5) });
             Add(_sliderBoxsStroke = new UISlider(Configuration.Current.ESP_Boxes_Stroke));
             _sliderBoxsStroke.onValueChanged += (x) => { Configuration.Current.ESP_Boxes_Stroke = x; };
@@ -34,6 +36,7 @@ namespace cs2.GameOverlay.UI.Forms
             // ------------------------------------------------------------------------------------------------------------
             Add(new UILabel("Skeleton") { FontSize = 16, Margin = new Margin(10, 5, 5, 5) });
             Add(_switcherSkeleton = new UISwitcher2("Enable", Configuration.Current.ESP_Skeleton_Color, new((x) => Configuration.Current.ESP_Skeleton = x)));
+            Add(_labelBonesColor2 = new UILabel2("Visible color", Configuration.Current.ESP_Skeleton_Spotted_Color));
             Add(new UILabel("Stroke") { FontSize = 12, Margin = new Margin(5, 0, -5, 5) });
             Add(_sliderBonesStroke = new UISlider(Configuration.Current.ESP_Bone_Stroke));
             _sliderBonesStroke.onValueChanged += (x) => { Configuration.Current.ESP_Bone_Stroke = x; };
@@ -57,10 +60,8 @@ namespace cs2.GameOverlay.UI.Forms
             Add(_switcherFlash = new UISwitcher("Flash bar", new((x) => Configuration.Current.ESP_Flash = x)));
             //Add(_switcherAlerts = new UISwitcher("Scope", new((x) => Configuration.Current.ESP_Alerts = x)));
 
-            Add(new UILabel("Misc"));
+            Add(new UILabel("World"));
             Add(_worldEspWeapons = new UISwitcher2("World", Configuration.Current.ESP_World_Weapons_Color, new((x) => Configuration.Current.ESP_World_Weapons = x)));
-            Add(_switcherCrosshair = new UISwitcher("Crosshair", new((x) => Configuration.Current.Misc_Crosshair = x)));
-            Add(_switcherScoreboard = new UISwitcher("Scoreboard", new((x) => Configuration.Current.Misc_Scoreboard = x)));
 
             entityPreview = new UIEntityPreview();
             entityPreview.Attach(this);
@@ -68,12 +69,19 @@ namespace cs2.GameOverlay.UI.Forms
             _weaponColor.colorMarginLeft = entityPreview.X - 10 - (int)Rect.Left;
             _weaponColor.ColorChanged += (color) => Configuration.Current.ESP_Weapon_Color = color;
 
+            _labelBoxesColor2.ColorChanged += (color) => Configuration.Current.ESP_Boxes_Spotted_Color = color;
+            _labelBonesColor2.ColorChanged += (color) => Configuration.Current.ESP_Skeleton_Spotted_Color = color;
+
             _switcherBox.colorMarginLeft = entityPreview.X - 10 - (int)Rect.Left;
             _switcherBox.ColorChanged += (color) => { Configuration.Current.ESP_Boxes_Color = color; };
             _switcherSkeleton.colorMarginLeft = entityPreview.X - 10 - (int)Rect.Left;
             _switcherSkeleton.ColorChanged += (color) => { Configuration.Current.ESP_Skeleton_Color = color; };
             _worldEspWeapons.colorMarginLeft = entityPreview.X - 10 - (int)Rect.Left;
             _worldEspWeapons.ColorChanged += (color) => { Configuration.Current.ESP_World_Weapons_Color = color; };
+            _labelBonesColor2.colorMarginLeft = entityPreview.X - 10 - (int)Rect.Left;
+            _labelBoxesColor2.colorMarginLeft = entityPreview.X - 10 - (int)Rect.Left;
+
+            _buttonRectType.Width = (int)(entityPreview.X - 10 - Rect.Left);
 
             _sliderBoxsStroke.Width = entityPreview.X - 20 - (int)Rect.Left;
             _sliderBonesStroke.Width = entityPreview.X - 20 - (int)Rect.Left;
@@ -105,9 +113,6 @@ namespace cs2.GameOverlay.UI.Forms
             _switcherSkeleton.Checked = Configuration.Current.ESP_Skeleton;
             _worldEspWeapons.Checked = Configuration.Current.ESP_World_Weapons;
 
-            _switcherCrosshair.Checked = Configuration.Current.Misc_Crosshair;
-            _switcherScoreboard.Checked = Configuration.Current.Misc_Scoreboard;
-
             _sliderBoxsStroke.Value = Configuration.Current.ESP_Boxes_Stroke;
             _sliderBonesStroke.Value = Configuration.Current.ESP_Bone_Stroke;
             _sliderWeaponFontSize.Value = Configuration.Current.ESP_Weapon_Font_Size;
@@ -117,6 +122,8 @@ namespace cs2.GameOverlay.UI.Forms
             _worldEspWeapons.Color = Configuration.Current.ESP_World_Weapons_Color;
 
             _weaponColor.Color = Configuration.Current.ESP_Weapon_Color;
+            _labelBoxesColor2.Color = Configuration.Current.ESP_Boxes_Spotted_Color;
+            _labelBonesColor2.Color = Configuration.Current.ESP_Skeleton_Spotted_Color;
         }
 
         private UIEntityPreview entityPreview = new UIEntityPreview();
@@ -127,15 +134,17 @@ namespace cs2.GameOverlay.UI.Forms
         private UISwitcher _switcherWeapon;
         private UISwitcher _switcherAmmo;
         private UISwitcher2 _switcherSkeleton;
-        private UISwitcher _switcherCrosshair;
-        private UISwitcher _switcherScoreboard;
         private UISwitcher2 _worldEspWeapons;
 
         private UILabel2 _weaponColor;
+        private UILabel2 _labelBoxesColor2;
+        private UILabel2 _labelBonesColor2;
 
         private UISlider _sliderBoxsStroke;
         private UISlider _sliderBonesStroke;
         private UISlider _sliderWeaponFontSize;
+
+        private UIButton _buttonRectType;
 
         private const int SIZE_X = 380, SIZE_Y = 600;
     }

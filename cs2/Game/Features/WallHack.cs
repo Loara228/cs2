@@ -63,8 +63,26 @@ namespace cs2.Game.Features
 
             if (Configuration.Current.ESP_Boxes)
             {
-                Brushes.Share.Color = Configuration.Current.ESP_Boxes_Color;
-                g.DrawRoundedRectangle(Brushes.Share, new RoundedRectangle(rect, 8), Configuration.Current.ESP_Boxes_Stroke);
+                var boxType = Configuration.Current.ESP_Box_Type;
+                var stroke = Configuration.Current.ESP_Boxes_Stroke;
+
+                Brushes.Share.Color = entity.IsSpotted ? Configuration.Current.ESP_Boxes_Spotted_Color : Configuration.Current.ESP_Boxes_Color;
+                Brushes.Share2.Color = Brushes.Share.Color.Invert();
+
+                if (boxType == ESP_Box_Type.DrawRectangle)
+                    g.DrawRectangle(Brushes.Share, rect, stroke);
+                else if (boxType == ESP_Box_Type.DrawRectangleEdges)
+                    g.DrawRectangleEdges(Brushes.Share, rect.Left, rect.Top, rect.Right, rect.Bottom, stroke);
+                else if (boxType == ESP_Box_Type.DrawRoundedRectangle)
+                    g.DrawRoundedRectangle(Brushes.Share, new RoundedRectangle(rect, rect.Width / 10), stroke);
+                else if (boxType == ESP_Box_Type.FillRectangle)
+                    g.FillRectangle(Brushes.Share, rect);
+                else if (boxType == ESP_Box_Type.FillRoundedRectangle)
+                    g.FillRoundedRectangle(Brushes.Share, new RoundedRectangle(rect, rect.Width / 10));
+                else if (boxType == ESP_Box_Type.OutlineFillRectangle)
+                    g.OutlineFillRectangle(Brushes.Share, Brushes.Share2, rect, stroke);
+                else if (boxType == ESP_Box_Type.OutlineRectangle)
+                    g.OutlineRectangle(Brushes.Share, Brushes.Share2, rect, stroke);
             }
 
             if (Configuration.Current.ESP_Health)
@@ -153,11 +171,12 @@ namespace cs2.Game.Features
             }
             foreach (var entity in Program.Entities)
             {
-
                 if (entity == null)
                     continue;
                 if (!entity.IsAlive() || !entity.CheckTeam())
                     continue;
+
+                Brushes.Share.Color = entity.IsSpotted ? Configuration.Current.ESP_Skeleton_Spotted_Color : Configuration.Current.ESP_Skeleton_Color;
 
                 g.DrawLineWorld(brush, stroke, preview, entity.Bones[0].pos, entity.Bones[1].pos);
                 g.DrawLineWorld(brush, stroke, preview, entity.Bones[1].pos, entity.Bones[2].pos);

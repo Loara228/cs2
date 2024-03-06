@@ -90,6 +90,7 @@ namespace cs2.Config
 
         #region ESP
 
+        public ESP_Box_Type ESP_Box_Type { get; set; } = 0;
         public bool ESP_Boxes { get; set; }
         public bool ESP_Skeleton { get; set; }
         public bool ESP_Weapon { get; set; }
@@ -108,6 +109,10 @@ namespace cs2.Config
         public Color ESP_Boxes_Color { get; set; } = new Color(255, 0, 0);
 
         public Color ESP_Skeleton_Color { get; set; } = new Color(255, 0, 0);
+
+        public Color ESP_Boxes_Spotted_Color { get; set; } = new Color(0, 255, 0);
+
+        public Color ESP_Skeleton_Spotted_Color { get; set; } = new Color(0, 255, 0);
 
         public Color ESP_Weapon_Color { get; set; } = new Color(255, 255, 255);
 
