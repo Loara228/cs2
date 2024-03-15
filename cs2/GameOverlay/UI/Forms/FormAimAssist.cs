@@ -11,7 +11,7 @@ namespace cs2.GameOverlay.UI.Forms
 {
     internal class FormAimAssist : UIForm
     {
-        public FormAimAssist(int x) : base(x, 0, "Aim")
+        public FormAimAssist(int x,int y) : base(x, y, "Aim")
         {
             this.Width = 352;
             InitializeComponents();
@@ -92,8 +92,19 @@ namespace cs2.GameOverlay.UI.Forms
             Add(checkboxBone4 = new UICheckbox("Spine 2", new Action<bool>((x) => CheckboxBoneChecked(2, x))));
             Add(checkboxBone5 = new UICheckbox("Pelvis", new Action<bool>((x) => CheckboxBoneChecked(0, x))));
 
+            Add(new UILine(this));
+
+            Add(new UILabel($"Global:") { FontSize = 16 });
+
+            Add(labelAimDelay = new UILabel($"aim thr sleep: {Configuration.Current.AimDelay + 5}") { Margin = new Margin(5, 5, -8) });
+            Add(sliderAimDelay = new UISlider(SelectedWeapon.ShotsFired));
+            sliderAimDelay.onValueChanged += SliderAimDelay;
+            sliderAimDelay.Value = Configuration.Current.AimDelay;
+            sliderAimDelay.MaxValue = 25;
+            sliderAimDelay.Width = Width - sliderAimMult.Margin.Left * 2;
+
             UIButton btn;
-            Add(btn = new UIButton("AnglePerPixel"));
+            Add(btn = new UIButton("Calibrate"));
             btn.Width = Width - btn.Margin.Left * 2;
             btn.Clicked += () =>
             {
@@ -143,6 +154,7 @@ namespace cs2.GameOverlay.UI.Forms
             SliderAimMult_OnValueChanged(weapon.Smoothing);
             SliderShotsFired(weapon.ShotsFired);
             SliderDelay(weapon.DelayAfterShot);
+            SliderAimDelay(Configuration.Current.AimDelay);
             sliderFov.Value = weapon.FOV;
 
             aim.Checked = weapon.EnableAimAssist;
@@ -197,6 +209,13 @@ namespace cs2.GameOverlay.UI.Forms
             Configuration.Current.GetWeaponFromType(_selectedWeaponType).ShotsFired = iValue;
         }
 
+        private void SliderAimDelay(float value)
+        {
+            int iValue = (int)Math.Round(value, 0);
+            labelAimDelay.Text = $"Aim thr sleep: {iValue + 5}";
+            Configuration.Current.AimDelay = iValue;
+        }
+
         private void SliderDelay(float value)
         {
             int iValue = (int)Math.Round(value, 0);
@@ -228,9 +247,11 @@ namespace cs2.GameOverlay.UI.Forms
         UISlider sliderAimMult;
         UISlider sliderShotsFired;
         UISlider sliderDelay;
+        UISlider sliderAimDelay;
 
         UILabel labelSmooth;
         UILabel labelShotsFired;
         UILabel labelDelay;
+        UILabel labelAimDelay;
     }
 }

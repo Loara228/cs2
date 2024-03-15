@@ -13,8 +13,6 @@ namespace cs2.GameOverlay
         {
             _halfBlack = g.CreateSolidBrush(0, 0, 0, 90);
 
-            _boxes = g.CreateSolidBrush(106, 244, 255, 100);
-            _bones = g.CreateSolidBrush(255, 255, 0, 150);
             _flashbangColor = g.CreateSolidBrush(120, 209, 240);
 
             _black = g.CreateSolidBrush(0, 0, 0, 255);
@@ -40,6 +38,9 @@ namespace cs2.GameOverlay
             _uiBorderColor = g.CreateSolidBrush(56, 56, 56, 255);
             _uiButtonMouseOn = g.CreateSolidBrush(66, 66, 66);
 
+            _uiBombColor = g.CreateSolidBrush(232, 94, 94);
+            _uiDefuceColor = g.CreateSolidBrush(94, 172, 232);
+
             // overlay hide
             _uiBorderColor2 = g.CreateSolidBrush(0, 0, 0, 70);
             _uiHeaderColor2 = g.CreateSolidBrush(0, 0, 0, 180);
@@ -47,9 +48,27 @@ namespace cs2.GameOverlay
 
             _fovColor = g.CreateSolidBrush(255, 255, 255, 100);
 
-            _share = g.CreateSolidBrush(0, 0, 0, 255);
-            _share2 = g.CreateSolidBrush(0, 0, 0, 255);
+            _share = g.CreateSolidBrush(255, 0, 0, 255);
+            _share2 = g.CreateSolidBrush(255, 0, 0, 255);
+            _rgb = g.CreateSolidBrush(255, 0, 0, 255);
 
+        }
+
+        public static void Update()
+        {
+            if (r == 255 && g < 255 && b == 0)
+                g += speed;
+            else if (r > 0 && g == 255 && b == 0)
+                r -= speed;
+            else if (r == 0 && g == 255 && b < 255)
+                b += speed;
+            else if (r == 0 && g > 0 && b == 255)
+                g -= speed;
+            else if (r < 255 && g == 0 && b == 255)
+                r += speed;
+            else if (r == 255 && g == 0 && b > 0)
+                b -= speed;
+            RGB.Color = new Color(r, g, b);
         }
 
         public static void Dispose()
@@ -57,8 +76,7 @@ namespace cs2.GameOverlay
 
         }
 
-        public static SolidBrush Bones { get => _bones; }
-        public static SolidBrush Boxes { get => _boxes; }
+        public static SolidBrush RGB { get => _rgb; }
         public static SolidBrush FlashbangColor { get => _flashbangColor; }
         public static SolidBrush FOVColor { get => _fovColor; }
         public static SolidBrush Black { get => _black; }
@@ -69,8 +87,25 @@ namespace cs2.GameOverlay
         public static SolidBrush ScoreboardElementT { get => _scoreboardElementT; }
         public static SolidBrush ScoreboardElementCT { get => _scoreboardElementCT; }
 
-        public static SolidBrush Share { get => _share; }
-        public static SolidBrush Share2 { get => _share2; }
+        public static SolidBrush Share
+        {
+            get
+            {
+                if (_share.Color.R == 0 && Math.Round(_share.Color.G, 4) == 0.0039d && _share.Color.B == 0)
+                    _share.Color = new Color(RGB.Color.R, RGB.Color.G, RGB.Color.B, _share.Color.A);
+                return _share;
+            }
+        }
+        public static SolidBrush Share2
+        {
+            get
+            {
+                if (_share2.Color.R == 0 && Math.Round(_share2.Color.G, 4) == 0.0039d && _share2.Color.B == 0)
+                    _share2.Color = new Color(RGB.Color.R, RGB.Color.G, RGB.Color.B, _share2.Color.A);
+                return _share2;
+            }
+        }
+
 
         #region TeamColor
 
@@ -95,6 +130,8 @@ namespace cs2.GameOverlay
         public static SolidBrush UIHeaderColor2 { get => _uiHeaderColor2; }
         public static SolidBrush UIBorderColor2 { get => _uiBorderColor2; }
         public static SolidBrush UIButtonMouseOn { get => _uiButtonMouseOn; }
+        public static SolidBrush UIBombColor { get => _uiBombColor; }
+        public static SolidBrush UIDefuseColor { get => _uiDefuceColor; }
 
         #endregion
 
@@ -103,8 +140,6 @@ namespace cs2.GameOverlay
         private static SolidBrush _scoreboardElementT = null!;
         private static SolidBrush _scoreboardElementCT = null!;
 
-        private static SolidBrush _bones = null!;
-        private static SolidBrush _boxes = null!;
         private static SolidBrush _flashbangColor = null!;
 
         private static SolidBrush _halfBlack = null!;
@@ -140,9 +175,15 @@ namespace cs2.GameOverlay
         private static SolidBrush _uiTextColor = null!;
         private static SolidBrush _uiButtonMouseOn = null!;
 
+        private static SolidBrush _uiBombColor = null!;
+        private static SolidBrush _uiDefuceColor = null!;
+
         #endregion
 
         private static SolidBrush _share = null!;
         private static SolidBrush _share2 = null!;
+        private static SolidBrush _rgb = null!;
+
+        private static byte r = 255, g, b, speed = 5;
     }
 }

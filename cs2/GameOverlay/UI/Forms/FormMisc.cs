@@ -10,7 +10,7 @@ namespace cs2.GameOverlay.UI.Forms
 {
     internal class FormMisc : UIForm
     {
-        public FormMisc(int x) : base(x, 0, "Misc")
+        public FormMisc(int x, int y) : base(x, y, "Misc")
         {
             this.Width = 200;
 
@@ -33,8 +33,8 @@ namespace cs2.GameOverlay.UI.Forms
             Add(_switcherSpectators = new UISwitcher("Spectators", new((x) => Configuration.Current.EnableSpectators = x)));
             Add(_hitMarker = new UISwitcher("Hit Marker", new((x) => Configuration.Current.HitMarker = x)));
             Add(_bhop = new UISwitcher("Bhop", new((x) => Configuration.Current.Bhop = x)));
-            Add(_switcherCrosshair = new UISwitcher("Crosshair", new((x) => Configuration.Current.Misc_Crosshair = x)));
-            Add(_switcherScoreboard = new UISwitcher("Scoreboard", new((x) => Configuration.Current.Misc_Scoreboard = x)));
+            Add(_switcherBombTimer = new UISwitcher("Scoreboard", new((x) => Configuration.Current.Misc_Scoreboard = x)));
+            Add(_switcherScoreboard = new UISwitcher("Bomb timer", new((x) => Configuration.Current.Misc_BombTimer = x)));
             Add(new UILine(this));
             // ------------------------------------------------------------------------------------------------------------
             Add(_switcherDM = new UISwitcher("DM Mode", new((x) => Configuration.Current.DM_Mode_Enabled = x)));
@@ -48,8 +48,8 @@ namespace cs2.GameOverlay.UI.Forms
             _switcherDM.Checked = Configuration.Current.DM_Mode_Enabled;
             _hitMarker.Checked = Configuration.Current.HitMarker;
             _bhop.Checked = Configuration.Current.Bhop;
-            _switcherCrosshair.Checked = Configuration.Current.Misc_Crosshair;
             _switcherScoreboard.Checked = Configuration.Current.Misc_Scoreboard;
+            _switcherBombTimer.Checked = Configuration.Current.Misc_BombTimer;
 
             _radarScale.Value = Configuration.Current.RadarScale;
             _radarEnemyScale.Value = Configuration.Current.RadarEnemyRadius;
@@ -60,8 +60,8 @@ namespace cs2.GameOverlay.UI.Forms
         private UISwitcher _switcherDM;
         private UISwitcher _hitMarker;
         private UISwitcher _bhop;
-        private UISwitcher _switcherCrosshair;
         private UISwitcher _switcherScoreboard;
+        private UISwitcher _switcherBombTimer;
 
         private UISlider _radarScale;
         private UISlider _radarEnemyScale;

@@ -134,7 +134,7 @@ namespace cs2.Game.Features
             GetAimAngles(_targetPos + velocity, out Vector2 aimAngles);
             GetAimPixels(aimAngles *= 1 / (CurrentWeaponConfig.Smoothing + 1), out var aimPixels);
             if (TryMouseMove(aimPixels))
-                Thread.Sleep(3);
+                Thread.Sleep(Configuration.Current.AimDelay - 5);
         }
 
         private static void UpdateAim()

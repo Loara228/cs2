@@ -1,6 +1,7 @@
 ﻿using cs2.Config;
 using cs2.Game.Objects;
 using cs2.GameOverlay;
+using cs2.GameOverlay.UI.Forms;
 using cs2.Offsets;
 using GameOverlay.Drawing;
 using System;
@@ -18,7 +19,6 @@ namespace cs2.Game.Features
         {
             if (!Configuration.Current.Misc_Scoreboard)
                 return;
-
             if (Input.IsKeyDown(9)) // Tab vk
             {
                 if (TabKeyState == 0)
@@ -33,34 +33,42 @@ namespace cs2.Game.Features
                 else if (TabKeyState == Input.KeyState.RELEASE)
                     TabKeyState = Input.KeyState.NONE;
             }
+            if (TabKeyState == Input.KeyState.DOWN)
+            {
+                foreach (var e in t)
+                {
+                    e.Update();
+                }
+                foreach (var e in ct)
+                {
+                    e.Update();
+                }
+            }
         }
 
-        public static void Draw(Graphics g)
+        public static void Draw(Graphics g, Rectangle bounds, out int scoreboardHeight)
         {
-            if (!Configuration.Current.Misc_Scoreboard)
-                return;
-
+            scoreboardHeight = 0;
             if (TabKeyState != Input.KeyState.DOWN)
                 return;
 
-            int ScoreboardHeight = SCOREBOARD_ELEMENT_OFFSET + ((t.Count + ct.Count) * (SCOREBOARD_ELEMENT_HEIGHT + SCOREBOARD_ELEMENT_OFFSET)) + SCOREBOARD_ELEMENT_OFFSET_TEAMS;
-            Rectangle scoreboardBounds = new Rectangle(g.Width - SCOREBOARD_WIDTH, 0, g.Width, ScoreboardHeight);
-            g.FillRectangle(Brushes.HalfBlack, scoreboardBounds);
+            scoreboardHeight = SCOREBOARD_ELEMENT_OFFSET + ((t.Count + ct.Count) * (SCOREBOARD_ELEMENT_HEIGHT + SCOREBOARD_ELEMENT_OFFSET)) + SCOREBOARD_ELEMENT_OFFSET_TEAMS;
+            scoreboardHeight += SCOREBOARD_ELEMENT_OFFSET;
 
-            float last = 0;
+            float last = bounds.Top + SCOREBOARD_ELEMENT_OFFSET;
 
             if (LocalPlayer.Current.Team == Structs.Team.Terrorist)
             {
                 foreach (PlayerData pData in t)
                 {
-                    Rectangle rectEl = GetScoreboardElementRect(scoreboardBounds, last);
+                    Rectangle rectEl = GetScoreboardElementRect(bounds, last);
                     DrawScoreboardElement(g, rectEl, pData);
                     last = rectEl.Bottom;
                 }
                 last += SCOREBOARD_ELEMENT_OFFSET_TEAMS;
                 foreach (PlayerData pData in ct)
                 {
-                    Rectangle rectEl = GetScoreboardElementRect(scoreboardBounds, last);
+                    Rectangle rectEl = GetScoreboardElementRect(bounds, last);
                     DrawScoreboardElement(g, rectEl, pData);
                     last = rectEl.Bottom;
                 }
@@ -69,47 +77,66 @@ namespace cs2.Game.Features
             {
                 foreach (PlayerData pData in ct)
                 {
-                    Rectangle rectEl = GetScoreboardElementRect(scoreboardBounds, last);
+                    Rectangle rectEl = GetScoreboardElementRect(bounds, last);
                     DrawScoreboardElement(g, rectEl, pData);
                     last = rectEl.Bottom;
                 }
                 last += SCOREBOARD_ELEMENT_OFFSET_TEAMS;
                 foreach (PlayerData pData in t)
                 {
-                    Rectangle rectEl = GetScoreboardElementRect(scoreboardBounds, last);
+                    Rectangle rectEl = GetScoreboardElementRect(bounds, last);
                     DrawScoreboardElement(g, rectEl, pData);
                     last = rectEl.Bottom;
                 }
             }
+            return;
         }
 
         private static Rectangle GetScoreboardElementRect(Rectangle scoreboardRect, float lastElementBottom)
         {
-            int top = (int)lastElementBottom + SCOREBOARD_ELEMENT_OFFSET;
-            return new Rectangle(scoreboardRect.Left + SCOREBOARD_ELEMENT_OFFSET, top, scoreboardRect.Right - SCOREBOARD_ELEMENT_OFFSET, top + SCOREBOARD_ELEMENT_HEIGHT);
+            return new Rectangle(
+                scoreboardRect.Left + COLOR_RECT_W + SCOREBOARD_ELEMENT_OFFSET * 2,
+                lastElementBottom + SCOREBOARD_ELEMENT_OFFSET,
+                scoreboardRect.Right - MONEY_RECT_W - MONEY_SPENT_RECT_W - SCOREBOARD_ELEMENT_OFFSET * 3,
+                lastElementBottom + SCOREBOARD_ELEMENT_OFFSET + SCOREBOARD_ELEMENT_HEIGHT);
         }
 
         private static void DrawScoreboardElement(Graphics g, Rectangle elementRect, PlayerData pData)
         {
-            g.FillRectangle(pData.Color, new Rectangle(elementRect.Left, elementRect.Top, elementRect.Left + 5, elementRect.Bottom));
+            // COLOR RECT
+            g.FillRectangle(pData.Color, new Rectangle(elementRect.Left - SCOREBOARD_ELEMENT_OFFSET - COLOR_RECT_W,
+                elementRect.Top,
+                elementRect.Left - SCOREBOARD_ELEMENT_OFFSET,
+                elementRect.Bottom));
 
-            int left = (int)elementRect.Left + SCOREBOARD_ELEMENT_OFFSET * 3;
-            g.FillRectangle(Brushes.HalfBlack, elementRect);
-            IBrush brush = pData.entity.Team == Structs.Team.Terrorist ? Brushes.ScoreboardElementT : Brushes.ScoreboardElementCT;
+            //NICKNAME RECT
+            var nicknameRect = g.GetTextRect(Fonts.Consolas, pData.Nickname, out float rectOffset);
+            g.FillRectangle(Brushes.HalfBlack,
+                elementRect);
 
-            g.DrawText(Fonts.Consolas, 14, brush, left, elementRect.Top + SCOREBOARD_ELEMENT_OFFSET, pData.Nickname);
-            g.DrawText(Fonts.Consolas, 12, Brushes.White, new Point(left, elementRect.Top + 20), $"Money: {pData.m_iAccount}");
-            g.DrawText(Fonts.Consolas, 12, Brushes.White, new Point(left, elementRect.Top + 30), $"Spent: {pData.m_iCashSpentThisRound}");
+            //MONEY_SPENT RECT
+            var moneySpentRect = new Rectangle(
+                elementRect.Right + SCOREBOARD_ELEMENT_OFFSET,
+                elementRect.Top,
+                elementRect.Right + SCOREBOARD_ELEMENT_OFFSET + MONEY_SPENT_RECT_W,
+                elementRect.Bottom);
+            g.FillRectangle(Brushes.HalfBlack, moneySpentRect);
+            g.DrawText(moneySpentRect, Fonts.Consolas, pData.m_iCashSpentThisRound.ToString(), Brushes.White);
 
-            Rectangle rectWins = g.GetTextRect(Fonts.Consolas, $"{pData.wins} Wins", out _, 0, 0);
-            g.DrawText(Fonts.Consolas, Brushes.White, elementRect.Right - rectWins.Width - SCOREBOARD_ELEMENT_OFFSET, elementRect.Top + SCOREBOARD_ELEMENT_OFFSET, $"{pData.wins} Wins");
+            //MONEY RECT
+            var moneyRect = new Rectangle(
+                moneySpentRect.Right + SCOREBOARD_ELEMENT_OFFSET,
+                moneySpentRect.Top,
+                moneySpentRect.Right + SCOREBOARD_ELEMENT_OFFSET + MONEY_RECT_W,
+                moneySpentRect.Bottom);
+            g.FillRectangle(Brushes.HalfBlack, moneyRect);
+            g.DrawText(moneyRect, Fonts.Consolas, pData.m_iAccount.ToString(), Brushes.White);
 
-            Rectangle rectWinPred = g.GetTextRect(Fonts.Consolas, $"+{pData.predicted_Win}", out _, 0, 0);
-            g.DrawText(Fonts.Consolas, Brushes.Green, elementRect.Right - rectWinPred.Width - SCOREBOARD_ELEMENT_OFFSET, elementRect.Top + 20 + SCOREBOARD_ELEMENT_OFFSET, $"+{pData.predicted_Win}");
-            
-            Rectangle rectLossPred = g.GetTextRect(Fonts.Consolas, $"{pData.predicted_Loss}", out _, 0, 0);
-            g.DrawText(Fonts.Consolas, Brushes.Red, elementRect.Right - rectLossPred.Width - SCOREBOARD_ELEMENT_OFFSET, elementRect.Top + 30 + SCOREBOARD_ELEMENT_OFFSET, $"{pData.predicted_Loss}");
-
+            g.DrawText(Fonts.Consolas,
+                pData.entity.Team == Structs.Team.Terrorist ? Brushes.ScoreboardElementT : Brushes.ScoreboardElementCT,
+                elementRect.Left + SCOREBOARD_ELEMENT_OFFSET,
+                elementRect.Top + elementRect.Height / 2 - nicknameRect.Height / 2f + rectOffset,
+                pData.Nickname + $" {pData.wins}");
         }
 
         private static void UpdateList()
@@ -135,7 +162,12 @@ namespace cs2.Game.Features
                 _tabKeyState = value;
                 if (value == Input.KeyState.PRESSED)
                 {
+                    FormScoreboard.Current.GameForm = true;
                     UpdateList();
+                }
+                else if (value == Input.KeyState.RELEASE)
+                {
+                    FormScoreboard.Current.GameForm = false;
                 }
             }
         }
@@ -158,14 +190,21 @@ namespace cs2.Game.Features
                 wins = Memory.Read<int>(entity.ControllerBase + CCSPlayerController.m_iCompetitiveWins);
                 color = Memory.Read<int>(entity.ControllerBase + CCSPlayerController.m_iCompTeammateColor);
 
+                predicted_Win = win - currentMMR;
+                predicted_Loss = loss - currentMMR;
+                predicted_Tie = tie - currentMMR;
+            }
+
+            public void Update()
+            {
                 IntPtr m_pInGameMoneyServices = Memory.Read<IntPtr>(entity.ControllerBase + CCSPlayerController.m_pInGameMoneyServices);
 
                 m_iAccount = Memory.Read<int>(m_pInGameMoneyServices + CCSPlayerController_InGameMoneyServices.m_iAccount);
                 m_iCashSpentThisRound = Memory.Read<int>(m_pInGameMoneyServices + CCSPlayerController_InGameMoneyServices.m_iCashSpentThisRound);
 
-                predicted_Win = win - currentMMR;
-                predicted_Loss = loss - currentMMR;
-                predicted_Tie = tie - currentMMR;
+                //IntPtr m_pWeaponServices = Memory.Read<IntPtr>(entity.AddressBase + C_BasePlayerPawn.m_pWeaponServices);
+                //int ammo = Memory.Read<int>(m_pWeaponServices + 0x40 + 0x15C8 + 22); // + m_hMyWeapons + m_iClip1 
+                //wins = ammo;
             }
 
             public string Nickname
@@ -173,7 +212,7 @@ namespace cs2.Game.Features
                 get
                 {
                     if (string.IsNullOrEmpty(entity.Nickname))
-                        return "?";
+                        return "LOCAL_PLAYER";
                     return entity.Nickname;
                 }
             }
@@ -205,10 +244,13 @@ namespace cs2.Game.Features
             private int color;
         }
 
-        private const int SCOREBOARD_WIDTH = 400;
-        private const int SCOREBOARD_ELEMENT_HEIGHT = 50;
+        private const int SCOREBOARD_ELEMENT_HEIGHT = 25;
         private const int SCOREBOARD_ELEMENT_OFFSET = 5;
-        private const int SCOREBOARD_ELEMENT_OFFSET_TEAMS = 50;
+        private const int SCOREBOARD_ELEMENT_OFFSET_TEAMS = 10;
+
+        private const int COLOR_RECT_W = 5;
+        private const int MONEY_RECT_W = 50;
+        private const int MONEY_SPENT_RECT_W = 50;
 
     }
 }

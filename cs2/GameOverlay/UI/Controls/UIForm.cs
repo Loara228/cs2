@@ -149,6 +149,11 @@ namespace cs2.GameOverlay.UI.Controls
 
         }
 
+        public void SetTitle(string text)
+        {
+            _title.Text = text;
+        }
+
         public void Focus()
         {
             BrushBorder = Brushes.UIActiveColor;
@@ -205,7 +210,7 @@ namespace cs2.GameOverlay.UI.Controls
 
         public bool GameForm
         {
-            get; protected set;
+            get; set;
         }
 
         public bool Resizable
@@ -216,6 +221,38 @@ namespace cs2.GameOverlay.UI.Controls
         public bool HeaderDisabled
         {
             get; private set;
+        }
+
+        public int Y
+        {
+            get => base.Y;
+            set
+            {
+                if (value > Overlay.ScreenSize.y - HEADER_SIZE)
+                {
+                    base.Y = Overlay.ScreenSize.y - HEADER_SIZE;
+                }
+                else
+                    base.Y = value;
+            }
+        }
+
+        public Point Position
+        {
+            get => base.Position;
+            set
+            {
+                int y = (int)value.Y;
+
+                if (value.Y > Overlay.ScreenSize.y - HEADER_SIZE - 2)
+                {
+                    y = Overlay.ScreenSize.y - HEADER_SIZE - 2;
+                }
+                else
+                    y = (int)value.Y;
+
+                base.Position = new Point(value.X, y);
+            }
         }
 
         /// <summary>

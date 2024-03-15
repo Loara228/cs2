@@ -6,6 +6,7 @@ using cs2.Offsets;
 using GameOverlay.Drawing;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace cs2.GameOverlay.UI.Forms
 {
     internal class FormConfig : UIForm
     {
-        public FormConfig(int x) : base(x, 0, "cs2.exe")
+        public FormConfig(int x, int y) : base(x, y, "cs2.exe")
         {
             this.MinWidth = 320;
             InitializeComponents();
@@ -37,6 +38,8 @@ namespace cs2.GameOverlay.UI.Forms
             Add(inlineContainer);
             inlineContainer.Add(new UIButton("Load", Load) { Width = MinWidth / 2 - 5 * 3 });
             inlineContainer.Add(new UIButton("Save", Save) { Width = MinWidth / 2 - 5 * 3 });
+
+            Add(new UIButton(@"updates (github.com)", new Action(() => Process.Start("explorer", "https://github.com/blyatArtem/cs2/blob/master/cs2/Content/Updates.md"))) { Width = MinWidth - 10 });
 
             Add(new UILabel($"Offsets"));
             Add(new UIButton(@"currentDir\generated", LoadOffsets) { Width = MinWidth - 10 });

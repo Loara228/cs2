@@ -28,6 +28,7 @@ namespace cs2.Offsets
             EntitySpottedState_t = new EntitySpottedState_t();
             C_CSWeaponBase = new C_CSWeaponBase();
             C_BasePlayerWeapon = new C_BasePlayerWeapon();
+            C_PlantedC4 = new C_PlantedC4();
 
             if (type == LoadType.FROM_GIT)
             {
@@ -103,6 +104,11 @@ namespace cs2.Offsets
         }
 
         public static string DumpTime { get; private set; }
+
+        public static C_PlantedC4 C_PlantedC4
+        {
+            get; private set;
+        } = null!;
 
         public static C_BaseEntity C_BaseEntity
         {

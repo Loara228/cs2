@@ -9,17 +9,38 @@ namespace cs2.GameOverlay.UI.Controls
 {
     internal class UISlider : UIControl
     {
-        public UISlider(float value)
+        public UISlider(float value, int width = 100)
         {
             MinHeight = 0;
 
-            Width = 100;
+            Width = width;
             Height = 4;
             Margin = new Margin(10, 8, 9);
 
             _circle = new Circle(-1, -1, 6);
 
             _value = value;
+        }
+
+        /// <param name="owner">auto width</param>
+        public UISlider(float value, UIForm owner)
+        {
+            MinHeight = 0;
+
+            Height = 4;
+            Margin = new Margin(10, 8, 14);
+
+            Width = owner.Width - Margin.Left - Margin.Right;
+
+            _circle = new Circle(-1, -1, 6);
+
+            _value = value;
+        }
+
+        /// <param name="owner">auto width</param>
+        public UISlider(float value, UIForm owner, float maxValue) : this(value, owner)
+        {
+            MaxValue = maxValue;
         }
 
         public override void Update()

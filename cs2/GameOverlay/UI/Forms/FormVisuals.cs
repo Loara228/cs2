@@ -14,7 +14,7 @@ namespace cs2.GameOverlay.UI.Forms
 {
     internal class FormVisuals : UIForm
     {
-        public FormVisuals(int x) : base(x, 0, "Visuals")
+        public FormVisuals(int x, int y) : base(x, y, "Visuals")
         {
             //this.Width = SIZE_X;
             this.Width = 500;

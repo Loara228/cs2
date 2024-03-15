@@ -57,6 +57,17 @@ namespace cs2.GameOverlay
             return GetTextRect(g, font, font.FontSize, text, out rectOffset, x, y);
         }
 
+        public static void DrawText(this Graphics g, Rectangle area,  global::GameOverlay.Drawing.Font font, float fontSize, string text, IBrush brush)
+        {
+            var r = g.GetTextRect(font, fontSize, text, out float rectOffset, 1, 1);
+            g.DrawText(font, fontSize, brush, new Point(area.Left + area.Width / 2 - r.Width / 2 + rectOffset, area.Top + area.Height / 2 - r.Height / 2 + rectOffset), text);
+        }
+
+        public static void DrawText(this Graphics g, Rectangle area, global::GameOverlay.Drawing.Font font, string text, IBrush brush)
+        {
+            g.DrawText(area, font, font.FontSize, text, brush);
+        }
+
         public static Rectangle GetTextRect(this Graphics g, global::GameOverlay.Drawing.Font font, float fontSize, string text, out float rectOffset, float x = 1, float y = 1)
         {
             float num = (x < 0f) ? ((float)g.Width + x) : ((float)g.Width - x);

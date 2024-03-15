@@ -51,6 +51,7 @@ namespace cs2.GameOverlay
 
         private void Update()
         {
+            Brushes.Update();
             GlobalVars.Update();
             Program.Entities.Clear();
             LocalPlayer.Current.Update();
@@ -102,7 +103,6 @@ namespace cs2.GameOverlay
             AimAssist.Draw(g);
             Crosshair.Draw(g);
             HitMarker.Draw(g);
-            Scoreboard.Draw(g);
         }
 
         private void OnDraw(Graphics g)
@@ -146,20 +146,24 @@ namespace cs2.GameOverlay
         {
             UIControl.initGraphics = g;
 
-            UIForm formAim = new FormAimAssist(ScreenSize.x - 362);
+            int y = Overlay.ScreenSize.y - UIForm.HEADER_SIZE - 2;
 
-            UIForm formVisuals = new FormVisuals(300);
-            UIForm formMisc = new FormMisc((int)formVisuals.Rect.Right + 10);
-            UIForm formConfig = new FormConfig((int)formMisc.Rect.Right + 10);
+            UIForm cfgForm = new FormConfig(ScreenSize.x - 330, 10);
+
             Forms = new List<UIForm>()
             {
+                cfgForm,
+
                 new FormSpectators(),
                 new FormRadar(),
-                formVisuals,
-                formMisc,
-                formConfig,
-                formAim,
+                new FormBomb(),
+                new FormVisuals(0, y),
             };
+            Forms.Add(new FormMisc((int)Forms[^1].Rect.Right + 4, y));
+            Forms.Add(new FormAimAssist((int)Forms[^1].Rect.Right + 4, y));
+            Forms.Add(new FormCrosshair((int)Forms[^1].Rect.Right + 4, y));
+
+            Forms.Add(new FormScoreboard());
 
             UIControl.initGraphics = null;
         }

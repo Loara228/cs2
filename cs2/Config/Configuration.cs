@@ -77,8 +77,10 @@ namespace cs2.Config
 
         #region UI
 
-        public Vec2i FormRadarPos { get; set; } = new Vec2i(15, -2);
-        public Vec2i FormRadarSize { get; set; } = new Vec2i(280, 280 + UIForm.HEADER_SIZE);
+        public Vec2i FormRadarPos { get; set; } = new Vec2i(330, 10);
+        public Vec2i FormBombTimePos { get; set; } = new Vec2i(330, 350);
+        public Vec2i FormScoreboardPos { get; set; } = new Vec2i(800, 10);
+        public Vec2i FormRadarSize { get; set; } = new Vec2i(200, 200 + UIForm.HEADER_SIZE);
         public Vec2i FormSpectatorsPos { get; set; } = new Vec2i(15, 360);
 
         public bool EnableSpectators { get; set; }
@@ -127,16 +129,31 @@ namespace cs2.Config
         public WeaponConfig Rifles { get; set; } = new WeaponConfig(WeaponConfigType.RIFLE);
         public WeaponConfig SniperRifles { get; set; } = new WeaponConfig(WeaponConfigType.SNIPER_RIFLE);
         public WeaponConfig Shotguns { get; set; } = new WeaponConfig(WeaponConfigType.SHOTGUN);
+        public int AimDelay { get; set; } = 10;
 
         #endregion
 
         #region Misc
 
-        public bool Misc_Crosshair { get; set; }
         public bool Misc_Scoreboard { get; set; }
+        public bool Misc_BombTimer { get; set; }
         public bool DM_Mode_Enabled { get; set; }
         public bool HitMarker { get; set; }
         public bool Bhop { get; set; }
+
+        #endregion
+
+        #region Crosshair
+
+        public bool Misc_Crosshair { get; set; }
+        public bool Crosshair_Sniper_Only { get; set; } = false;
+
+        public float Crosshair_Length { get; set; } = 8f;
+        public float Crosshair_Thickness { get; set; } = 2f;
+        public float Crosshair_Gap { get; set; } = 2f;
+        public float Crosshair_Outline { get; set; } = 0.5f;
+        public Color Crosshair_Fill { get; set; } = new Color(255, 255, 255);
+        public Color Crosshair_Stroke { get; set; } = new Color(0, 0, 0);
 
         #endregion
 

@@ -28,10 +28,10 @@ namespace cs2.GameOverlay.UI.Forms
 
         private void InitializeComponents()
         {
-            Add(_sliderH = new UISliderH(0) { Margin = new Margin(10, (Height / 2) + 40, 10, 10) });
-            Add(_sliderS = new UISliderS(100) { Margin = new Margin(10) });
-            Add(_sliderL = new UISliderL(50) { Margin = new Margin(10) });
-            Add(_sliderA = new UISlider(100) { Margin = new Margin(10) });
+            Add(_sliderH = new UISliderH(0) { Margin = new Margin(10, preview_height + 10, 8, 10) });
+            Add(_sliderS = new UISliderS(100) { Margin = new Margin(8) });
+            Add(_sliderL = new UISliderL(50) { Margin = new Margin(8) });
+            Add(_sliderA = new UISlider(100) { Margin = new Margin(8) });
             Add(_labelHSL = UILabel.CreateWithoutGraphics("HSLA"));
 
             _labelHSL.FontSize = 12;
@@ -51,8 +51,29 @@ namespace cs2.GameOverlay.UI.Forms
                 Confirmed?.Invoke(Color);
                 Close();
             }));
-            btn.Margin = new(Width - btn.Width - 1, 10, 1, 0);
+
+            UIButton btnRgb = new UIButton("RGB", new(() =>
+            {
+                Confirmed?.Invoke(new Color(0, 1, 0, (int)(Color.A * 255f)));
+                Close();
+            }));
+
+            UIButton btnCancel = new UIButton("Cancel", new(() =>
+            {
+                Close();
+            }));
+
+            btn.Margin = new Margin(1, 20, 1, 1);
+            btnRgb.Margin = new Margin(1, 1, 1, 1);
+            btnCancel.Margin = new Margin(1, 1, 1, 1);
+
+            btn.Width = this.Width - 2;
+            btnRgb.Width = this.Width - 2;
+            btnCancel.Width = this.Width - 2;
+
             Add(btn);
+            Add(btnRgb);
+            Add(btnCancel);
 
             UpdateColor();
         }
@@ -103,8 +124,8 @@ namespace cs2.GameOverlay.UI.Forms
             if (Overlay.drawUI)
             {
                 Brushes.Share.Color = this.Color;
-                g.FillRectangle(Brushes.Share, new Rectangle(X, Y, Rect.Right, Y + Rect.Height / 2));
-                g.FillRectangle(Brushes.UIBackgroundColor, new Rectangle(X, Y + Rect.Height / 2, Rect.Right, Rect.Bottom));
+                g.FillRectangle(Brushes.Share, new Rectangle(X, Y, Rect.Right, Y + preview_height));
+                g.FillRectangle(Brushes.UIBackgroundColor, new Rectangle(X, Y + preview_height, Rect.Right, Rect.Bottom));
             }
             base.Draw(g);
         }
@@ -121,5 +142,7 @@ namespace cs2.GameOverlay.UI.Forms
         private UISliderL _sliderL;
         private UISlider _sliderA;
         private UILabel _labelHSL;
+
+        private const int preview_height = 60;
     }
 }

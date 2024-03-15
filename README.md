@@ -41,6 +41,14 @@
 
 ![overlay](cs2/Content/overlay.gif)
 
+## Прицел
+
+![crosshair](cs2/Content/crosshair.png)
+
+## Таймер бомбы
+
+![bomb timer](cs2/Content/bombtimer.png)
+
 ### Создание формы
 
 ```cs
