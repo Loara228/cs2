@@ -14,11 +14,13 @@ namespace cs2
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out][MarshalAs(UnmanagedType.AsAny)] object lpBuffer, int dwSize, out int lpNumberOfBytesRead);
 
-        public static bool Initialize()
+        public static bool Initialize(out string mes)
         {
+            mes = "The program is already running";
             if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)
                 return false;
 
+            mes = "CS2 process not found";
             var procList = Process.GetProcessesByName("cs2");
             if (procList.Length == 0)
                 return false;

@@ -1,4 +1,5 @@
-﻿using cs2.Game.Objects;
+﻿using cs2.Config;
+using cs2.Game.Objects;
 using cs2.Offsets;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,6 @@ namespace cs2.Game.Features
         {
             _localPlayer = new LocalPlayer();
             _key = new Input.Key(32);
-
             new Thread(() =>
             {
                 for (; ; )
@@ -28,6 +28,7 @@ namespace cs2.Game.Features
                     }
                     _key.Update();
                     Update();
+                    Thread.Sleep(Configuration.Current.THR_DELAY_BHOP);
                 }
             }).Start();
         }

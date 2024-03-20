@@ -24,7 +24,7 @@ namespace cs2.Game.Features
                 for (; ; )
                 {
                     Update();
-                    Thread.Sleep(1);
+                    Thread.Sleep(50);
                 }
             }).Start();
         }
@@ -36,7 +36,7 @@ namespace cs2.Game.Features
                 _objects.Clear();
                 if (!Configuration.Current.ESP_World_Weapons)
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(500);
                     return;
                 }
                 IntPtr entityListPtr = Memory.Read<IntPtr>(Memory.ClientPtr + ClientOffsets.dwEntityList);

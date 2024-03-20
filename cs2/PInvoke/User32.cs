@@ -10,6 +10,9 @@ namespace cs2.PInvoke
 {
     internal static class User32
     {
+        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        public static extern int GetSystemMetrics(int nIndex);
+
         [DllImport("User32.dll")]
         internal static extern short GetAsyncKeyState(int vKey);
 

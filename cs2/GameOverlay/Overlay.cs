@@ -31,12 +31,14 @@ namespace cs2.GameOverlay
             {
                 MeasureFPS = true,
                 PerPrimitiveAntiAliasing = true,
-                TextAntiAliasing = true
+                TextAntiAliasing = true,
+                UseMultiThreadedFactories = true,
+                VSync = true
             };
-
-            Window = new GraphicsWindow(0, 0, 1920, 1080, g)
+            var screen = ScreenHelper.GetBounds();
+            Window = new GraphicsWindow((int)screen.Left, (int)screen.Top, (int)screen.Width, (int)screen.Height)
             {
-                FPS = 90,
+                FPS = Config.Configuration.Current.FPS_Max,
                 IsTopmost = true,
                 IsVisible = true
             };

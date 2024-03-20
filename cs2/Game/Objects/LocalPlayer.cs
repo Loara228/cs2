@@ -41,7 +41,7 @@ namespace cs2.Game.Objects
             if (!base.Update()) return false;
 
             MatrixViewProjection = Matrix.Transpose(Memory.Read<Matrix>(Memory.ClientPtr + ClientOffsets.dwViewMatrix));
-            MatrixViewport = Matrix.GetMatrixViewport(new System.Drawing.Size(1920, 1080));
+            MatrixViewport = Matrix.GetMatrixViewport(new System.Drawing.Size(Overlay.ScreenSize.x, Overlay.ScreenSize.y));
             MatrixViewProjectionViewport = MatrixViewProjection * MatrixViewport;
 
             Weapon.Update(Memory.Read<IntPtr>(AddressBase + C_CSPlayerPawnBase.m_pClippingWeapon));

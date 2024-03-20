@@ -49,7 +49,45 @@ namespace cs2.GameOverlay.UI.Forms
             Add(offsetsInfo1 = new UILabel(dumpTimeList[0]) { TextColor = Brushes.UIButtonMouseOn, FontSize = 10, Margin = new(-5) });
             Add(offsetsInfo2 = new UILabel(dumpTimeList[1]) { TextColor = Brushes.UIButtonMouseOn, FontSize = 10, Margin = new(-5) });
 
+            Add(new UILine(this));
+
+            Add(labelFps = new UILabel($"fps max: {Overlay.Current.Window.FPS}") {  FontSize = 10, Margin = new Margin(5, 5, -5, 0)});
+            Add(sliderFps = new UISlider(Configuration.Current.FPS_Max - 30) { MaxValue = 60 });
+
+            Add(labelThreadAim = new UILabel($"aim thread delay: {Configuration.Current.THR_DELAY_AIM}") { FontSize = 10, Margin = new Margin(5, 5, -5, 0) });
+            Add(sliderThreadAim = new UISlider(Configuration.Current.THR_DELAY_AIM) { MaxValue = 50 });
+
+            Add(labelThreadTb = new UILabel($"triggerbot thread delay: {Configuration.Current.THR_DELAY_TB}") { FontSize = 10, Margin = new Margin(5, 5, -5, 0) });
+            Add(sliderThreadTb = new UISlider(Configuration.Current.THR_DELAY_TB) { MaxValue = 50 });
+
+            Add(labelThreadBhop = new UILabel($"bhop thread delay: {Configuration.Current.THR_DELAY_BHOP}") { FontSize = 10, Margin = new Margin(5, 5, -5, 0) });
+            Add(sliderThreadBhop = new UISlider(Configuration.Current.THR_DELAY_BHOP) { MaxValue = 50 });
+
+            sliderFps.onValueChanged += (value) =>
+            {
+                Overlay.Current.Window.FPS = (int)value + 30;
+                labelFps.Text = $"fps max: {Overlay.Current.Window.FPS}";
+            };
+            sliderThreadAim.onValueChanged += (value) =>
+            {
+                Configuration.Current.THR_DELAY_AIM = (int)value;
+                labelThreadAim.Text = $"aim thread delay: {Configuration.Current.THR_DELAY_AIM}";
+            }; sliderThreadTb.onValueChanged += (value) =>
+            {
+                Configuration.Current.THR_DELAY_TB = (int)value;
+                labelThreadTb.Text = $"triggerbot thread delay: {Configuration.Current.THR_DELAY_TB}";
+            }; sliderThreadBhop.onValueChanged += (value) =>
+            {
+                Configuration.Current.THR_DELAY_BHOP = (int)value;
+                labelThreadBhop.Text = $"bhop thread delay: {Configuration.Current.THR_DELAY_BHOP}";
+            };
+
             Width = Width;
+
+            sliderFps.Width = Width - 25;
+            sliderThreadAim.Width = Width - 25;
+            sliderThreadBhop.Width = Width - 25;
+            sliderThreadTb.Width = Width - 25;
         }
 
         private void LoadOffsets()
@@ -70,8 +108,35 @@ namespace cs2.GameOverlay.UI.Forms
         {
             Configuration.Load();
             Overlay.Current.ApplyConfiguration();
+            ApplyCfg();
+        }
+
+        private void ApplyCfg()
+        {
+            Overlay.Current.Window.FPS = Configuration.Current.FPS_Max;
+            labelFps.Text = $"fps max: {Overlay.Current.Window.FPS}";
+            //labelThreadAim.Text = $"aim thread delay: {Configuration.Current.THR_DELAY_AIM}";
+            //labelThreadTb.Text = $"triggerbot thread delay: {Configuration.Current.THR_DELAY_TB}";
+            //labelThreadBhop.Text = $"bhop thread delay: {Configuration.Current.THR_DELAY_BHOP}";
+            sliderThreadBhop.Value = Configuration.Current.THR_DELAY_BHOP;
+            sliderThreadTb.Value = Configuration.Current.THR_DELAY_TB;
+            sliderThreadAim.Value = Configuration.Current.THR_DELAY_AIM;
+
+
         }
 
         private UILabel offsetsInfo1, offsetsInfo2;
+
+        private UISlider sliderFps;
+        private UILabel labelFps;
+
+        private UISlider sliderThreadAim;
+        private UILabel labelThreadAim;
+
+        private UISlider sliderThreadBhop;
+        private UILabel labelThreadBhop;
+
+        private UISlider sliderThreadTb;
+        private UILabel labelThreadTb;
     }
 }

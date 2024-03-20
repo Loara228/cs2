@@ -53,7 +53,7 @@ namespace cs2.Game.Features
                 for (; ; )
                 {
                     Update();
-                    Thread.Sleep(1);
+                    Thread.Sleep(Configuration.Current.THR_DELAY_AIM);
                 }
             }).Start();
             new Thread(() =>
@@ -61,7 +61,7 @@ namespace cs2.Game.Features
                 for (; ; )
                 {
                     UpdateTB();
-                    //Thread.Sleep(1);
+                    Thread.Sleep(Configuration.Current.THR_DELAY_TB);
                 }
             }).Start();
         }
@@ -79,13 +79,16 @@ namespace cs2.Game.Features
             else if (LocalPlayer.Current.Weapon.IsSniperRifle)
                 CurrentWeaponConfig = Configuration.Current.SniperRifles;
             else
+            {
+                Thread.Sleep(250);
                 return;
+            }
 
             vkBindXBtn.Update();
 
             if (!CurrentWeaponConfig.EnableAimAssist)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(250);
                 return;
             }
 

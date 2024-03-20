@@ -26,9 +26,9 @@ namespace cs2
                 Console.ReadKey();
                 Environment.Exit(0);
             }
-            if (!Memory.Initialize())
+            if (!Memory.Initialize(out string mes))
             {
-                Log("memory init failed", ConsoleColor.Red);
+                Log(mes, ConsoleColor.Red);
                 Console.ReadKey();
                 Environment.Exit(0);
             }
