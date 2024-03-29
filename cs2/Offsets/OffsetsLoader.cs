@@ -34,8 +34,8 @@ namespace cs2.Offsets
             {
                 using (WebClient wc = new WebClient())
                 {
-                    const string clientDllUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/generated/client.dll.cs";
-                    const string offseltsUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/generated/offsets.cs";
+                    const string clientDllUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/win/client.dll.cs";
+                    const string offseltsUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/win/offsets.cs";
 
                     string clientDllData = wc.DownloadString(clientDllUrl);
                     string offsetsData = wc.DownloadString(offseltsUrl);
@@ -80,7 +80,7 @@ namespace cs2.Offsets
         {
             Load(ClientOffsets, offsetsData);
 
-            DumpTime = clientDllData.Substring(0, clientDllData.IndexOf("*/"));
+            DumpTime = clientDllData.Substring(0, clientDllData.IndexOf("//"));
 
             Load(C_BaseEntity, clientDllData);
             Load(CBasePlayerController, clientDllData);

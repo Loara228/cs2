@@ -44,10 +44,10 @@ namespace cs2.GameOverlay.UI.Forms
             Add(new UILabel($"Offsets"));
             Add(new UIButton(@"currentDir\generated", LoadOffsets) { Width = MinWidth - 10 });
 
-            var dumpTimeList = OffsetsLoader.DumpTime.Replace("/*\n", "").Replace("*/\n", "").Split('\n').ToList();
-            dumpTimeList.RemoveAt(dumpTimeList.Count - 1);
-            Add(offsetsInfo1 = new UILabel(dumpTimeList[0]) { TextColor = Brushes.UIButtonMouseOn, FontSize = 10, Margin = new(-5) });
-            Add(offsetsInfo2 = new UILabel(dumpTimeList[1]) { TextColor = Brushes.UIButtonMouseOn, FontSize = 10, Margin = new(-5) });
+            //var dumpTimeList = OffsetsLoader.DumpTime.Replace("//\n", "").Replace("//\n", "").Split('\n').ToList();
+            //dumpTimeList.RemoveAt(dumpTimeList.Count - 1);
+            //Add(offsetsInfo1 = new UILabel(dumpTimeList[0]) { TextColor = Brushes.UIButtonMouseOn, FontSize = 10, Margin = new(-5) });
+            //Add(offsetsInfo2 = new UILabel(dumpTimeList[1]) { TextColor = Brushes.UIButtonMouseOn, FontSize = 10, Margin = new(-5) });
 
             Add(new UILine(this));
 
@@ -93,7 +93,7 @@ namespace cs2.GameOverlay.UI.Forms
         private void LoadOffsets()
         {
             OffsetsLoader.Initialize(LoadType.FROM_DIR);
-            var dumpTimeList = OffsetsLoader.DumpTime.Replace("/*\n", "").Replace("*/\n", "").Split('\n').ToList();
+            var dumpTimeList = OffsetsLoader.DumpTime.Replace("//\n", "").Replace("//\n", "").Split('\n').ToList();
             dumpTimeList.RemoveAt(dumpTimeList.Count - 1);
             offsetsInfo1.Text = dumpTimeList[0];
             offsetsInfo2.Text = dumpTimeList[1];
