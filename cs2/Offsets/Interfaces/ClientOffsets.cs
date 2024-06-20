@@ -8,7 +8,7 @@ namespace cs2.Offsets.Interfaces
 {
     internal class ClientOffsets : InterfaceBase
     {
-        public ClientOffsets() : base("Client")
+        public ClientOffsets() : base("ClientDll")
         {
         }
 

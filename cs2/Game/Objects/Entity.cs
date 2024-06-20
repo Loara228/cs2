@@ -101,8 +101,7 @@ namespace cs2.Game.Objects
             if (!CheckTeam())
                 return;
             IntPtr gameSceneNode = Memory.Read<IntPtr>(AddressBase + C_BaseEntity.m_pGameSceneNode);
-            IntPtr boneArray = Memory.Read<IntPtr>(gameSceneNode + 0x160 + 0x80); // CSkeletonInstance, 128
-
+            IntPtr boneArray = Memory.Read<IntPtr>(gameSceneNode + CSkeletonInstance.m_modelState + 0x80); // CSkeletonInstance -> m_modelState , 128
 
             var bone = Bones[0];
             IntPtr boneAddress = boneArray + bone.id * 32;
@@ -122,7 +121,7 @@ namespace cs2.Game.Objects
 
         public void UpdateSpotted()
         {
-            ulong spottedMask = Memory.Read<ulong>(AddressBase + C_CSPlayerPawnBase.m_entitySpottedState + 0xC);
+            ulong spottedMask = Memory.Read<ulong>(AddressBase + C_CSPlayerPawn.m_entitySpottedState + 0xC);
             var s = spottedMask & ((UInt64)1 << (LocalPlayer.index - 1));
             IsSpotted = s != 0;
         }

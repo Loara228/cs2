@@ -32,7 +32,7 @@ namespace cs2.Game.Objects
 
 		public void UpdateIndex()
         {
-            WeaponIndex = (WeaponDefIndex)Memory.Read<short>(WeaponPtr + 0x1098 + 0x50 + 0x1BA); // C_EconEntity.m_AttributeManager + m_Item + m_iItemDefinitionIndex 0x1158
+            WeaponIndex = (WeaponDefIndex)Memory.Read<short>(WeaponPtr + C_EconEntity.m_AttributeManager + 0x50 + C_EconItemView.m_iItemDefinitionIndex); // C_EconEntity.m_AttributeManager + C_AttributeContainer.m_Item + m_iItemDefinitionIndex 0x1158
         }
 
 		public void UpdateAmmo()

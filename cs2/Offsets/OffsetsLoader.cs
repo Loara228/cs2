@@ -29,13 +29,16 @@ namespace cs2.Offsets
             C_CSWeaponBase = new C_CSWeaponBase();
             C_BasePlayerWeapon = new C_BasePlayerWeapon();
             C_PlantedC4 = new C_PlantedC4();
+            C_EconEntity = new C_EconEntity();
+            C_EconItemView = new C_EconItemView();
+            CSkeletonInstance = new CSkeletonInstance();
 
             if (type == LoadType.FROM_GIT)
             {
                 using (WebClient wc = new WebClient())
                 {
-                    const string clientDllUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/win/client.dll.cs";
-                    const string offseltsUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/win/offsets.cs";
+                    const string clientDllUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/client.dll.cs";
+                    const string offseltsUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/offsets.cs";
 
                     string clientDllData = wc.DownloadString(clientDllUrl);
                     string offsetsData = wc.DownloadString(offseltsUrl);
@@ -95,6 +98,9 @@ namespace cs2.Offsets
             Load(EntitySpottedState_t, clientDllData);
             Load(C_CSWeaponBase, clientDllData);
             Load(C_BasePlayerWeapon, clientDllData);
+            Load(C_EconEntity, clientDllData);
+            Load(C_EconItemView, clientDllData);
+            Load(CSkeletonInstance, clientDllData);
         }
 
         private static void Load(InterfaceBase @interface, string fileData)
@@ -105,12 +111,27 @@ namespace cs2.Offsets
 
         public static string DumpTime { get; private set; }
 
+        public static CSkeletonInstance CSkeletonInstance
+        {
+            get; private set;
+        } = null!;
+
         public static C_PlantedC4 C_PlantedC4
         {
             get; private set;
         } = null!;
 
+        public static C_EconItemView C_EconItemView
+        {
+            get; private set;
+        } = null!;
+
         public static C_BaseEntity C_BaseEntity
+        {
+            get; private set;
+        } = null!;
+
+        public static C_EconEntity C_EconEntity
         {
             get; private set;
         } = null!;

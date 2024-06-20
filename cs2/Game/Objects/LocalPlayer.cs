@@ -48,7 +48,7 @@ namespace cs2.Game.Objects
 
             ViewAngles = Memory.Read<Vector3>(Memory.ClientPtr + ClientOffsets.dwViewAngles);
 
-            IsScoped = Memory.Read<bool>(AddressBase + C_CSPlayerPawnBase.m_bIsScoped) && Weapon.IsSniperRifle;
+            IsScoped = Memory.Read<bool>(AddressBase + C_CSPlayerPawn.m_bIsScoped) && Weapon.IsSniperRifle;
 
             return true;
         }

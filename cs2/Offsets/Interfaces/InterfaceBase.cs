@@ -20,7 +20,7 @@ namespace cs2.Offsets.Interfaces
 
         public void ParseInterface(string data)
         {
-            int startIndex = data.IndexOf("class " + Name);
+            int startIndex = data.IndexOf("class " + Name + " ");
             if (startIndex == -1)
                 throw new FormatException($"{Name} not found.");
             foreach(FieldInfo field in this.GetType().GetFields())
@@ -29,6 +29,10 @@ namespace cs2.Offsets.Interfaces
                 int valueStartIndex = data.IndexOf(fieldName + " = ", startIndex);
                 if (valueStartIndex == -1)
                 {
+                    if (fieldName == "m_entitySpottedState")
+                    {
+                        Debugger.Break();
+                    }
                     Program.Log($"{Name}.{field.Name} not found.", ConsoleColor.Yellow);
                     continue;
                 }

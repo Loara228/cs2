@@ -269,7 +269,7 @@ namespace cs2.Game.Features
             if (!CurrentWeaponConfig.RCS || ShotsFired == 0)
                 AimPunchAngle = Vector3.Zero;
             AimDirection = GetAimDirection(ViewAngles, AimPunchAngle);
-            ShotsFired = Memory.Read<int>(AddressBase + C_CSPlayerPawnBase.m_iShotsFired);
+            ShotsFired = Memory.Read<int>(AddressBase + C_CSPlayerPawn.m_iShotsFired);
             IntPtr pCameraServices = Memory.Read<IntPtr>(AddressBase + C_BasePlayerPawn.m_pCameraServices);
             EyeDirection = GetVectorFromEulerAngles(ViewAngles.X.DegreeToRadian(), ViewAngles.Y.DegreeToRadian());
             PlayerFov = Memory.Read<int>(pCameraServices + 0x210);
