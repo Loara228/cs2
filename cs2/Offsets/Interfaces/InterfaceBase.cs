@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,13 +20,13 @@ namespace cs2.Offsets.Interfaces
 
         public void ParseInterface(string data)
         {
-            int startIndex = data.IndexOf("class " + Name + " ");
+            int startIndex = data.IndexOf("class " + Name + " ", StringComparison.Ordinal);
             if (startIndex == -1)
                 throw new FormatException($"{Name} not found.");
             foreach(FieldInfo field in this.GetType().GetFields())
             {
                 string fieldName = field.Name;
-                int valueStartIndex = data.IndexOf(fieldName + " = ", startIndex);
+                int valueStartIndex = data.IndexOf(fieldName + " = ", startIndex, StringComparison.Ordinal);
                 if (valueStartIndex == -1)
                 {
                     if (fieldName == "m_entitySpottedState")
