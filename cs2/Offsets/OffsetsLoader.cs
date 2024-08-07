@@ -37,7 +37,7 @@ namespace cs2.Offsets
             {
                 using (WebClient wc = new WebClient())
                 {
-                    const string clientDllUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/client.dll.cs";
+                    const string clientDllUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/client_dll.cs";
                     const string offseltsUrl = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/offsets.cs";
 
                     string clientDllData = wc.DownloadString(clientDllUrl);
